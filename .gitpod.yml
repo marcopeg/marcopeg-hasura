@@ -1,5 +1,10 @@
 tasks:
-  - init: yarn install
+  - init: >
+      touch /tmp/.npm-lock &&
+      yarn install &&
+      rm /tmp/.npm-lock
+    command: ./gitpod.init.sh
+  - init: sleep 1 && while [ -f /tmp/.npm-lock ]; do sleep 1; done
     command: yarn start
 
 ports:
