@@ -30,13 +30,10 @@ export const Auth0Provider = ({
           try {
             const { appState } = await client.handleRedirectCallback();
             if (appState && appState.returnTo) {
-              console.log('push AppState >>', appState.returnTo)
-              history.push(appState.returnTo);
+              history.replace(appState.returnTo);
             } else {
-              console.log('push rootURI >>', rootURI)
-              history.push(rootURI);
+              history.replace(rootURI);
             }
-            console.log('handle return code', { appState })
           } catch (err) {
             console.log('Error handling callbaclk', err.message)
           }
@@ -57,7 +54,6 @@ export const Auth0Provider = ({
       } catch (err) {
         console.log('!!!!!!!!!!!!')
         console.error(err);
-        console.log('!!!!!!!!!!!!')
       } finally {
         setIsLoading(false);
         setIsReady(true);
@@ -67,19 +63,13 @@ export const Auth0Provider = ({
   }, []); // eslint-disable-line
 
   const login = (payload) => {
-    console.log('login', payload ? payload.appState : null)
     setIsLoading(true);
-    setTimeout(() => {
-      client.loginWithRedirect(payload);
-    }, 2500);
+    client.loginWithRedirect(payload);
   }
 
   const logout = () => {
-    console.log('logour', rootURL)
     setIsLoading(true);
-    setTimeout(() => {
-      client.logout({ returnTo: rootURL });
-    }, 2500);
+    client.logout({ returnTo: rootURL });
   }
 
 
