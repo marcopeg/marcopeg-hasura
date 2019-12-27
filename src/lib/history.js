@@ -1,2 +1,2 @@
-import { createBrowserHistory } from 'history';
-export default createBrowserHistory();
+import { createBrowserHistory as createHistory } from 'history';
+export default createHistory();

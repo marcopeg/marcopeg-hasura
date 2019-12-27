@@ -1,56 +1,85 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth0 } from './lib/auth0';
+import React from 'react';
+// import { Switch, Route } from 'react-router-dom';
+// import PrivateRoute from './lib/PrivateRoute'
+// import MainMenu from './containers/MainMenu';
+// import HomePage from './views/HomePage';
+// import Dashboard from './views/Dashboard';
+import { useAuth0, withAuth } from './lib/my-auth0';
+
+const Foo = withAuth(({ auth }) => {
+  return (
+    <div>
+      Welcome {auth.user.email}
+      <button onClick={auth.logout}>logout</button>
+    </div>
+  );
+});
 
 const App = () => {
-  const { isAuthenticated, loginWithRedirect, user, token } = useAuth0();
-  const [ todos, setTodos ] = useState([]);
+  const { isLoading, isAuthenticated } = useAuth0();
 
-  useEffect(() => {
-    if (!token) return;
+  // const { isAuthenticated, loginWithRedirect, logout, user, token } = useAuth0();
+  // const [ todos, setTodos ] = useState([]);
 
-    const loadPosts = async () => {
-      const res = await fetch('https://marcopeg-hasura.herokuapp.com/v1/graphql', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          query: '{todos{id completed text}}',
-        }),
-      });
+  // useEffect(() => {
+  //   if (!token) return;
 
-      const body = await res.json();
-      setTodos(body.data.todos)
-    }
+  //   const loadPosts = async () => {
+  //     const res = await fetch('https://marcopeg-hasura.herokuapp.com/v1/graphql', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //       body: JSON.stringify({
+  //         query: '{todos{id completed text}}',
+  //       }),
+  //     });
 
-    loadPosts().catch(err => console.log(err))
+  //     const body = await res.json();
+  //     setTodos(body.data.todos)
+  //   }
 
-  }, [token])
+  //   loadPosts().catch(err => console.log(err))
 
-  if (isAuthenticated && user) {
-    return (
-      <div>
-        <img src={user.picture} width={40} />
-        Hello <b>{user.nickname}</b>
-        <hr />
-        {todos.length ? (
-          <ul>
-          {todos.map(todo => (
-            <li key={todo.id}>{todo.text}</li>
-          ))}
-        </ul>
-        ) : (
-          <div>loading todos...</div>
-        )}
-        <hr />
-        <pre>{token}</pre>
-      </div>
-    )
-  }
+  // }, [token])
+
+  // if (isAuthenticated && user) {
+  //   return (
+  //     <div>
+  //       <img src={user.picture} width={40} />
+  //       <div onClick={logout}>Hello <b>{user.nickname}</b></div>
+  //       <hr />
+  //       {todos.length ? (
+  //         <ul>
+  //         {todos.map(todo => (
+  //           <li key={todo.id}>{todo.text}</li>
+  //         ))}
+  //       </ul>
+  //       ) : (
+  //         <div>loading todos...</div>
+  //       )}
+  //       <hr />
+  //       <pre>{token}</pre>
+  //     </div>
+  //   )
+  // }
 
   return (
-    <div onClick={loginWithRedirect}>login!</div>
+    <div>
+      <p>isLoading: {isLoading.toString()}</p>
+      <p>isAuthenticated: {isAuthenticated.toString()}</p>
+
+      <Foo />
+      <hr />
+      <Foo />
+
+      {/* <MainMenu />
+      <Switch>
+        <Route path="/" exact component={HomePage} />
+        <PrivateRoute path="/dashboard" exact component={Dashboard} />
+      </Switch> */}
+    </div>
   )
 }
 
