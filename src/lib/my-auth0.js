@@ -1,12 +1,15 @@
 /* eslint-disable */
 import React, { useState, useEffect, useContext } from 'react';
 import createAuth0Client from '@auth0/auth0-spa-js';
+import history from './history';
 
 export const Auth0Context = React.createContext();
 export const useAuth0 = () => useContext(Auth0Context);
 
 export const Auth0Provider = ({
   children,
+  rootURL = window.location.origin,
+  rootURI = window.location.pathname,
   ...initOptions
 }) => {
   const [ isReady, setIsReady ] = useState(false);
@@ -26,8 +29,14 @@ export const Auth0Provider = ({
         if (window.location.search.includes("code=")) {
           try {
             const { appState } = await client.handleRedirectCallback();
-            console.log(appState)
-            // onRedirectCallback(appState);
+            if (appState && appState.returnTo) {
+              console.log('push AppState >>', appState.returnTo)
+              history.push(appState.returnTo);
+            } else {
+              console.log('push rootURI >>', rootURI)
+              history.push(rootURI);
+            }
+            console.log('handle return code', { appState })
           } catch (err) {
             console.log('Error handling callbaclk', err.message)
           }
@@ -57,16 +66,20 @@ export const Auth0Provider = ({
     initAuth0();
   }, []); // eslint-disable-line
 
-  const login = () => {
-    console.log('login')
+  const login = (payload) => {
+    console.log('login', payload ? payload.appState : null)
     setIsLoading(true);
-    client.loginWithRedirect();
+    setTimeout(() => {
+      client.loginWithRedirect(payload);
+    }, 2500);
   }
 
   const logout = () => {
-    console.log('logout!')
+    console.log('logour', rootURL)
     setIsLoading(true);
-    client.logout();
+    setTimeout(() => {
+      client.logout({ returnTo: rootURL });
+    }, 2500);
   }
 
 
@@ -92,20 +105,28 @@ export const Auth0Provider = ({
   );
 };
 
-export const withAuth = (component) => (props) => {
+export const withAuth = (component, {
+  returnTo = null,
+  renderLoading = () => 'loading...',
+  renderShield = () => null,
+} = {}) => (props) => {
   const auth = useAuth0();
   const { isAuthenticated, isReady, isLoading, login } = auth;
 
   useEffect(() => {
-    if (isReady && !isAuthenticated && !isLoading) login()
-  }, [isReady, isAuthenticated])
+    if (isReady && !isAuthenticated && !isLoading) {
+      login({ appState: {
+        returnTo: returnTo || window.location.pathname,
+      }})
+    }
+  }, [isReady, isAuthenticated, isLoading])
 
   if (!isReady || isLoading) {
-    return 'loading....'
+    return renderLoading ? renderLoading() : null
   }
 
   if (!isAuthenticated) {
-    return 'need login'
+    return renderShield ? renderShield() : null
   }
 
   return React.createElement(component, { ...props, auth })

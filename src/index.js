@@ -7,21 +7,12 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import './index.css';
 
-const onRedirectCallback = appState => {
-  history.push(
-    appState && appState.targetUrl
-      ? appState.targetUrl
-      : window.location.pathname
-  );
-};
-
 ReactDOM.render(
   <Auth0Provider
     domain={'marcopeg.eu.auth0.com'}
     client_id={'1dFca4fBVhVYhMiF9K96EL6lsfmqRgD6'}
     audience={'https://marcopeg.eu.auth0.com/api/v2/'}
     redirect_uri={window.location.origin}
-    onRedirectCallback={onRedirectCallback}
   >
     <Router history={history}>
       <App />
