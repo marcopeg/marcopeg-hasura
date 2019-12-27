@@ -18,6 +18,7 @@ ReactDOM.render(
   <Auth0Provider
     domain={'marcopeg.eu.auth0.com'}
     client_id={'1dFca4fBVhVYhMiF9K96EL6lsfmqRgD6'}
+    audience={'https://marcopeg-hasura.herokuapp.com'}
     redirect_uri={window.location.origin}
     onRedirectCallback={onRedirectCallback}
   >
