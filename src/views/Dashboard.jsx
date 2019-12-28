@@ -1,5 +1,5 @@
 import React from 'react';
-import { withAuth } from '../lib/my-auth0';
+import { withAuth } from '../lib/auth';
 
 const Dashboard = ({ auth }) => (
   <div>

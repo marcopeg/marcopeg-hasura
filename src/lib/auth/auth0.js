@@ -1,12 +1,12 @@
 /* eslint-disable */
 import React, { useState, useEffect, useContext } from 'react';
 import createAuth0Client from '@auth0/auth0-spa-js';
-import history from './history';
+import history from '../history';
 
 export const Auth0Context = React.createContext();
-export const useAuth0 = () => useContext(Auth0Context);
+export const useAuth = () => useContext(Auth0Context);
 
-export const Auth0Provider = ({
+export const AuthProvider = ({
   children,
   rootURL = window.location.origin,
   rootURI = window.location.pathname,
@@ -93,31 +93,4 @@ export const Auth0Provider = ({
       {children}
     </Auth0Context.Provider>
   );
-};
-
-export const withAuth = (component, {
-  returnTo = null,
-  renderLoading = () => 'loading...',
-  renderShield = () => null,
-} = {}) => (props) => {
-  const auth = useAuth0();
-  const { isAuthenticated, isReady, isLoading, login } = auth;
-
-  useEffect(() => {
-    if (isReady && !isAuthenticated && !isLoading) {
-      login({ appState: {
-        returnTo: returnTo || window.location.pathname,
-      }})
-    }
-  }, [isReady, isAuthenticated, isLoading])
-
-  if (!isReady || isLoading) {
-    return renderLoading ? renderLoading() : null
-  }
-
-  if (!isAuthenticated) {
-    return renderShield ? renderShield() : null
-  }
-
-  return React.createElement(component, { ...props, auth })
 };

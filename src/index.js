@@ -1,14 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Router } from 'react-router-dom';
-import { Auth0Provider } from './lib/my-auth0';
+import { AuthProvider } from './lib/auth';
 import history from './lib/history';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 import './index.css';
 
 ReactDOM.render(
-  <Auth0Provider
+  <AuthProvider
     domain={'marcopeg.eu.auth0.com'}
     client_id={'1dFca4fBVhVYhMiF9K96EL6lsfmqRgD6'}
     audience={'https://marcopeg.eu.auth0.com/api/v2/'}
@@ -17,7 +17,7 @@ ReactDOM.render(
     <Router history={history}>
       <App />
     </Router>
-  </Auth0Provider>,
+  </AuthProvider>,
   document.getElementById('root')
 );
 
