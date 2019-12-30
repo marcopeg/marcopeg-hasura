@@ -9,7 +9,7 @@ const TypeText = ({ question, answer, updateValue }) => (
   <IonItem>
     <IonLabel position="floating">{question.text}</IonLabel>
     <IonTextarea
-      autoGrow
+      {...question.data}
       value={answer.text}
       onIonChange={(e) => updateValue(e.target.value, answer.data)}
     />

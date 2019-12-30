@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  IonPage,
+  IonModal,
   IonContent,
   IonHeader,
   IonTitle,
@@ -8,35 +8,38 @@ import {
   IonButtons,
   IonButton,
 } from '@ionic/react';
-import { withAuth } from '../lib/auth';
 import useJournalEntry from '../state/use-journal-entry';
 import JournalQuestion from '../components/JournalQuestion';
 
-const Journal = ({ auth, match }) => {
-  const { questions } = useJournalEntry(match.params.date);
+const JournalEntry = ({ logDate, onDismiss, ...modalProps }) => {
+  const { loading, questions } = useJournalEntry(logDate);
+
+  const content = loading
+    ? 'loading...'
+    : questions.map(question => (
+      <JournalQuestion
+        {...question}
+        key={question.id}
+      />
+    ))
 
   return (
-    <IonPage>
+    <IonModal {...modalProps} onDidDismiss={onDismiss}>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Journal Entry <small>{match.params.date}</small></IonTitle>
+          <IonTitle>{logDate}</IonTitle>
           <IonButtons slot="end">
-            <IonButton routerLink={'/journal'}>
+            <IonButton onClick={onDismiss}>
               Done
             </IonButton>
           </IonButtons>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        {questions.map(question => (
-          <JournalQuestion
-            {...question}
-            key={question.id}
-          />
-        ))}
+        {content}
       </IonContent>
-    </IonPage>
+    </IonModal>
   );
 };
 
-export default withAuth(Journal);
+export default JournalEntry;

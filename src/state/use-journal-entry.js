@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
 
 const LOAD_DAILY_ENTRIES = gql`
@@ -77,12 +77,16 @@ const formatQuestion = (answers, setAnswers) => (question) => ({
 });
 
 const useJournalEntry = (date) => {
+  // const [ logDate, ]
   const [ answers, setAnswers ] = useState({});
-  const { loading, data, error } = useQuery(LOAD_DAILY_ENTRIES, {
-    fetchPolicy: 'no-cache',
-    variables: { date }
-  });
+  const [ fetchEntries, { loading, data, error }] = useLazyQuery(LOAD_DAILY_ENTRIES);
   const [updateDailyEntries] = useMutation(UPDATE_DAILY_ENTRIES);
+
+  // Fetch fresh records when the `date` changes
+  useEffect(() => {
+    fetchEntries({ fetchPolicy: 'no-cache', variables: { date } });
+    setAnswers({});
+  }, [ date, fetchEntries ])
 
   // Auto save changes
   const saveTimer = useRef();
@@ -90,6 +94,7 @@ const useJournalEntry = (date) => {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(async () => {
       if (!Object.keys(answers).length) {
+        console.log('no answers, return')
         return
       }
 
@@ -100,11 +105,12 @@ const useJournalEntry = (date) => {
       }));
 
       try {
+        console.log('update!', records)
         await updateDailyEntries({ variables: { records } })
       } catch (err) {
         console.log('Couldnt update the daily logs', err.message)
       }
-    }, 500)
+    }, 250)
 
     return () => clearTimeout(saveTimer.current);
   }, [ date, answers, updateDailyEntries ]);
