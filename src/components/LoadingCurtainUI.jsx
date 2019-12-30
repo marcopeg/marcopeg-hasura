@@ -14,6 +14,7 @@ const styles = {
     color: '#888',
     fontSize: '10pt',
     fontStyle: 'italic',
+    zIndex: 999999,
   },
   inner: {
     marginBottom: '40vh',
