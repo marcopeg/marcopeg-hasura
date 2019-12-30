@@ -39,6 +39,8 @@ const Dashboard = ({ auth }) => {
           <button onClick={auth.logout}>logout</button>
         </div>
         <Link to="/">home</Link>
+        <br />
+        <Link to="/journal">journal</Link>
       </IonContent>
     </IonPage>
   )
