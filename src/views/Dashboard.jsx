@@ -5,6 +5,7 @@ import {
   IonHeader,
   IonTitle,
   IonToolbar,
+  IonButton,
 } from '@ionic/react';
 import { Link } from 'react-router-dom';
 import { gql } from 'apollo-boost';
@@ -41,6 +42,8 @@ const Dashboard = ({ auth }) => {
         <Link to="/">home</Link>
         <br />
         <Link to="/journal">journal</Link>
+        <hr />
+        <IonButton routerLink="/">Go GOme</IonButton>
       </IonContent>
     </IonPage>
   )
