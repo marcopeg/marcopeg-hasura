@@ -10,6 +10,7 @@ import {
   IonFab,
   IonFabButton,
   IonIcon,
+  IonList,
 } from '@ionic/react';
 import { add, arrowBack } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
@@ -48,17 +49,19 @@ const Journal = () => {
           </IonButtons>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        {entries.map((entry, i) => (
-          <JournalEntry
-            {...entry}
-            key={entry.logDate}
-            onDisclose={() => {
-              setLogDate(entry.logDate);
-              setShowModal(true);
-            }}
-          />
-        ))}
+      <IonContent>
+        <IonList lines={'full'}>
+          {entries.map((entry) => (
+            <JournalEntry
+              {...entry}
+              key={entry.logDate}
+              onDisclose={() => {
+                setLogDate(entry.logDate);
+                setShowModal(true);
+              }}
+            />
+          ))}
+        </IonList>
         <hr />
         <button onClick={loadMore}>load more</button>
       </IonContent>

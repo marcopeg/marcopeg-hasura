@@ -1,11 +1,11 @@
 import React from 'react';
 
 import {
-  IonCard,
-  IonCardHeader,
-  IonCardTitle,
-  IonCardContent,
+  IonItem,
+  IonLabel,
 } from '@ionic/react';
+
+import IonAvatarDate from '../IonAvatarDate';
 
 import TypeText from './TypeText';
 
@@ -16,17 +16,17 @@ const types = {
 
 const JournalEntry = ({ logDate, onDisclose, entries }) => {
   return (
-    <IonCard>
-      <IonCardHeader>
-        <IonCardTitle onClick={onDisclose}>{logDate}</IonCardTitle>
-      </IonCardHeader>
-      <IonCardContent>
-        {entries.map(entry => React.createElement(types[entry.type], {
+    <IonItem onClick={onDisclose}>
+      <IonAvatarDate date={logDate} />
+      <IonLabel>
+        {entries.map((entry, index) => React.createElement(types[entry.type], {
           ...entry,
+          entries,
+          entryIndex: index,
           key: `${logDate}--${entry.questionId}`,
         }))}
-      </IonCardContent>
-    </IonCard>
+      </IonLabel>
+    </IonItem>
   )
 }
 

@@ -15,6 +15,11 @@ const FETCH_ENTRIES = gql`
           _lte: $top
           _gte: $bottom
         }
+        journal_question: {
+          show_in_journal: {
+            _eq: true
+          }
+        }
       }
     ) {
       text

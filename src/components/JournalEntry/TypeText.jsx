@@ -4,15 +4,15 @@ import {
   IonText,
 } from '@ionic/react';
 
-const TypeText = ({ question, answer }) => {
+const TypeText = ({ question, answer, entries }) => {
   if (!answer) {
     return null
   }
 
   return (
-    <div style={{ margin: '15px 0' }}>
+    <div>
       <IonText>
-        <b>{question}</b>
+        {entries.length > 1 ? <b>{question}</b> : null}
         <p>{answer}</p>
       </IonText>
     </div>
