@@ -18,7 +18,7 @@ const JournalEntry = ({ logDate, onDisclose, entries }) => {
   return (
     <IonItem onClick={onDisclose}>
       <IonAvatarDate date={logDate} />
-      <IonLabel>
+      <IonLabel class="ion-text-wrap">
         {entries.map((entry, index) => React.createElement(types[entry.type], {
           ...entry,
           entries,
