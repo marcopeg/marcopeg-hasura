@@ -5,13 +5,19 @@ import {
   IonTextarea,
 } from '@ionic/react';
 
-const TypeText = ({ question, answer, updateValue }) => (
+const TypeText = ({
+  question,
+  questionData,
+  answer,
+  answerData,
+  updateAnswer,
+}) => (
   <IonItem>
-    <IonLabel position="floating">{question.text}</IonLabel>
+    <IonLabel position="floating">{question}</IonLabel>
     <IonTextarea
-      {...question.data}
-      value={answer.text}
-      onIonChange={(e) => updateValue(e.target.value, answer.data)}
+      {...questionData}
+      value={answer}
+      onIonChange={(e) => updateAnswer(e.target.value, answerData)}
     />
   </IonItem>
 );

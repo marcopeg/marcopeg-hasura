@@ -8,25 +8,9 @@ import {
   IonButton,
 } from '@ionic/react';
 import { Link } from 'react-router-dom';
-import { gql } from 'apollo-boost';
-import { useQuery } from '@apollo/react-hooks';
 import { withAuth } from '../lib/auth';
 
-export const LOAD_QUESTIONS = gql`
-  query loadQuestions {
-    journal_questions {
-      id
-      data
-      text
-      type
-    }
-  }
-`
-
 const Dashboard = ({ auth }) => {
-  const { loading, error, data, refetch } = useQuery(LOAD_QUESTIONS, { fetchPolicy: 'no-cache' });
-  console.log(loading, error ? error.message : null, data);
-
   return (
     <IonPage>
       <IonHeader>

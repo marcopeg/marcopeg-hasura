@@ -1,17 +1,17 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
 
 const LOAD_DAILY_ENTRIES = gql`
   query loadDailyEntries (
-    $date: date!
+    $logDate: date!
   ) {
     journal_questions {
       id
       type
       text
       data
-      journal_logs(where: {created_at_day: {_eq: $date}}) {
+      journal_logs(where: {created_at_day: {_eq: $logDate}}) {
         text
         data
         created_at
@@ -35,91 +35,120 @@ const UPDATE_DAILY_ENTRIES = gql`
   }
 `
 
-const getQuestions = (data) => {
-  try {
-    return data.journal_questions || [];
-  } catch (err) {
-    return [];
-  }
-};
-
-const getAnswerText = (record, answer) => {
-  if (answer.text !== undefined) {
-    return answer.text;
-  }
-  if (record.text !== undefined) {
-    return record.text;
-  }
-  return '';
-}
-
-const formatAnswer = (record = {}, answer = {}) => {
-  return {
-    text: getAnswerText(record, answer),
-    data: answer.data || record.data || {},
-    createdAt: record.created_at || null,
-    updatedAt: record.updated_at || null,
-  };
-};
-
-const formatQuestion = (answers, setAnswers) => (question) => ({
-  id: question.id,
-  type: question.type,
-  question: {
-    text: question.text,
-    data: question.data,
-  },
-  answer: formatAnswer(question.journal_logs[0], answers[question.id]),
-  updateValue: (text, data) => setAnswers({
-    ...answers,
-    [question.id]: { text, data },
-  }),
+const formatAnswer = (record) => ({
+  answer: record ? record.text : '',
+  data: record ? record.data : null,
+  createdAt: record ? record.created_at : null,
+  updatedAt: record ? record.updated_at : null,
 });
 
-const useJournalEntry = (date) => {
-  // const [ logDate, ]
-  const [ answers, setAnswers ] = useState({});
-  const [ fetchEntries, { loading, data, error }] = useLazyQuery(LOAD_DAILY_ENTRIES);
-  const [updateDailyEntries] = useMutation(UPDATE_DAILY_ENTRIES);
+const formatQuestion = (record) => {
+  const answer = formatAnswer(record.journal_logs.length ? record.journal_logs[0] : null);
+  return {
+    id: record.id,
+    type: record.type,
+    question: record.text,
+    answer: answer.answer,
+    questionData: record.data || {},
+    answerData: answer.data || {},
+    createdAt: answer.createdAt,
+    updatedAt: answer.updatedAt,
+  }
+}
 
-  // Fetch fresh records when the `date` changes
+const decorateAnswer = (question, answers, setAnswers) => {
+  const answer = answers && answers[question.id]
+    ? {
+      answer: answers[question.id].text,
+      answerData: answers[question.id].data,
+    }
+    : {};
+
+  return {
+    ...question,
+    ...answer,
+    updateAnswer: (text, data) => setAnswers({
+      ...answers,
+      [question.id]: { text, data },
+    }),
+  };
+}
+
+const useJournalEntry = (logDate, options = {
+  debounce: 500,
+}) => {
+  const debounceUpdate = useRef(null);
+  const [ answers, setAnswers ] = useState({});
+  const [ hasChanges, setHasChanges ] = useState(false);
+
+  const [ fetchEntries, {
+    loading: isFetching,
+    error: fetchError,
+    data: fetchData,
+  }] = useLazyQuery(LOAD_DAILY_ENTRIES);
+
+  const [ updateEntries, {
+    loading: isUpdating,
+    error: updateError,
+  }] = useMutation(UPDATE_DAILY_ENTRIES);
+
+  // re-fetch on logDate change
   useEffect(() => {
-    fetchEntries({ fetchPolicy: 'no-cache', variables: { date } });
     setAnswers({});
-  }, [ date, fetchEntries ])
+    fetchEntries({ variables: { logDate }});
+  }, [ logDate, setAnswers, fetchEntries ]);
 
-  // Auto save changes
-  const saveTimer = useRef();
+  // compute questions data model for rendering
+  // merges current values with current changes
+  const questions = useMemo(() => {
+    if (!fetchData || !fetchData.journal_questions) {
+      return [];
+    }
+
+    return fetchData.journal_questions
+      .map(formatQuestion)
+      .map($ => decorateAnswer($, answers, setAnswers));
+  }, [fetchData, answers]);
+
+  // keep note of open changes that await persistance
   useEffect(() => {
-    clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      if (!Object.keys(answers).length) {
-        console.log('no answers, return')
-        return
-      }
+    if (Object.keys(answers).length) {
+      setHasChanges(true);
+    }
+  }, [ answers, setHasChanges ]);
 
+  // auto save on user activity
+  // (debounced)
+  useEffect(() => {
+    if (!Object.keys(answers).length) {
+      return;
+    }
+
+    clearTimeout(debounceUpdate.current)
+    debounceUpdate.current = setTimeout(() => {
       const records = Object.keys(answers).map((id) => ({
         question_id: id,
-        created_at_day: date,
+        created_at_day: logDate,
         ...answers[id],
       }));
 
-      try {
-        console.log('update!', records)
-        await updateDailyEntries({ variables: { records } })
-      } catch (err) {
-        console.log('Couldnt update the daily logs', err.message)
-      }
-    }, 250)
+      // on persis, reset the open changes note
+      updateEntries({ variables: { records } })
+        .then(() => setHasChanges(false))
+        .catch(err => console.log('Couldnt update the daily logs', err.message))
+    }, options.debounce) ;
 
-    return () => clearTimeout(saveTimer.current);
-  }, [ date, answers, updateDailyEntries ]);
+    return () => clearTimeout(debounceUpdate.current);
+  }, [ answers, logDate, options.debounce, updateEntries ]);
 
   return {
-    loading,
-    questions: getQuestions(data).map(formatQuestion(answers, setAnswers)),
-    error,
-  }
-}
+    isFetching,
+    isUpdating,
+    fetchError,
+    updateError,
+    questions,
+    hasChanges,
+  };
+};
 
 export default useJournalEntry;

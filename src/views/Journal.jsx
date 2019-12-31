@@ -10,7 +10,6 @@ import {
   IonFab,
   IonFabButton,
   IonIcon,
-  IonModal,
 } from '@ionic/react';
 import { add, arrowBack } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
@@ -32,7 +31,7 @@ const formatDate = (date) => {
 
 const Journal = () => {
   const [ logDate, setLogDate ] = useState(formatDate(new Date()));
-  const [ showModal, setShowModal ] = useState(false)
+  const [ showModal, setShowModal ] = useState(true)
 
   return (
     <IonPage>

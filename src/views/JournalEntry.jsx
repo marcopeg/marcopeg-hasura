@@ -12,25 +12,32 @@ import useJournalEntry from '../state/use-journal-entry';
 import JournalQuestion from '../components/JournalQuestion';
 
 const JournalEntry = ({ logDate, onDismiss, ...modalProps }) => {
-  const { loading, questions } = useJournalEntry(logDate);
+  const { questions, hasChanges } = useJournalEntry(logDate);
 
-  const content = loading
-    ? 'loading...'
-    : questions.map(question => (
-      <JournalQuestion
-        {...question}
-        key={question.id}
-      />
-    ))
+  const content = questions.length
+    ? questions.map(question => (
+        <JournalQuestion
+          {...question}
+          key={question.id}
+        />
+      ))
+    : null;
+
+  const doneLbl = hasChanges
+      ? '* Done'
+      : 'Done';
 
   return (
-    <IonModal {...modalProps} onDidDismiss={onDismiss}>
+    <IonModal
+      {...modalProps}
+      onDidDismiss={onDismiss}
+    >
       <IonHeader>
         <IonToolbar>
           <IonTitle>{logDate}</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={onDismiss}>
-              Done
+              {doneLbl}
             </IonButton>
           </IonButtons>
         </IonToolbar>

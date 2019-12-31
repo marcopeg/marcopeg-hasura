@@ -44,5 +44,14 @@ export const createApolloClient = (token) => {
     httpLink,
   );
 
-  return new ApolloClient({ link, cache });
+  return new ApolloClient({ link, cache, defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'ignore',
+    },
+    query: {
+      fetchPolicy: 'no-cache',
+      errorPolicy: 'all',
+    },
+  }});
 };
