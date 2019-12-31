@@ -1,6 +1,5 @@
-/* eslint-disable */
-import { useState, useMemo, useEffect } from 'react';
-import { useLazyQuery } from '@apollo/react-hooks';
+import { useState, useRef, useMemo, useEffect } from 'react';
+import { useLazyQuery } from '../lib/apollo';
 import { gql } from 'apollo-boost';
 
 const FETCH_ENTRIES = gql`
@@ -9,7 +8,9 @@ const FETCH_ENTRIES = gql`
     $bottom: date!
   ) {
     journal_logs(
-      order_by: {created_at_day: desc}
+      order_by: {
+        created_at_day: desc
+      }
       where: {
         created_at_day: {
           _lte: $top
@@ -56,12 +57,6 @@ const decreaseDate = (initialDate, days) => {
   return date;
 };
 
-const increaseDate = (initialDate, days) => {
-  const date = new Date(initialDate);
-  date.setDate(date.getDate() + days);
-  return date;
-};
-
 // Prepares an array[size] and apply an initialization function
 // on each item, the handler receives the item's index.
 const makeList = (size, initFn = null) => {
@@ -86,52 +81,18 @@ const useJournalHistory = (options = {
   pageSize: 7,
 }) => {
   const initialDate = useMemo(() => new Date(), []);
-  const [ lastDate, setLastDate ] = useState(initialDate)
-  const [ showRecords, setShowRecords ] = useState(options.pageSize);
   const [ logs, setLogs ] = useState([]);
+  const showRecordsRef = useRef(0);
 
   const [ fetchEntries, {
-    loading: isFetching,
-    error: fetchError,
-    data: fetchData,
+    loading,
+    error,
   }] = useLazyQuery(FETCH_ENTRIES);
-
-  // load more records
-  useEffect(() => {
-    const top = formatDate(lastDate);
-    const bottom = formatDate(decreaseDate(initialDate, showRecords - 1));
-    console.log('@fetchMore', top, bottom);
-    fetchEntries({ variables: { top, bottom }});
-  }, [ showRecords ]);
-
-  // detect new records were loaded
-  // `fetchEntries()` does not provide a Promise back!
-  useEffect(() => {
-    if (isFetching || fetchError || !fetchData) {
-      return;
-    }
-
-    setLogs([
-      ...logs,
-      ...fetchData.journal_logs,
-    ]);
-  }, [ isFetching, fetchError, fetchData ]);
-
-  // update the last record's date for next pagination
-  // happens in response to a new data being loaded
-  useEffect(() => {
-    if (!logs.length) {
-      return
-    }
-
-    const lastRecord = logs[logs.length - 1];
-    setLastDate(new Date(lastRecord.created_at_day));
-  }, [logs]);
 
   // calculates the list of visible entries from today into the past
   const entries = useMemo(() => {
-    console.log('@entries');
-    return makeList(showRecords, (idx) => {
+    // console.log('@entries');
+    return makeList(showRecordsRef.current, (idx) => {
       const date = decreaseDate(initialDate, idx);
       const logDate = formatDate(date);
       const entries = logs
@@ -146,11 +107,48 @@ const useJournalHistory = (options = {
         entries,
       }
     });
-  }, [showRecords, logs]);
+  }, [ initialDate, logs ]);
+
+  const loadMore = () => {
+    const lastDate = logs.length
+      ? decreaseDate(logs[logs.length - 1].created_at_day, 1)
+      : initialDate;
+
+    const top = formatDate(lastDate);
+    const bottom = formatDate(decreaseDate(initialDate, showRecordsRef.current + options.pageSize));
+
+    // console.log('@loadMore', top, bottom, showRecordsRef.current)
+    return fetchEntries({ variables: { top, bottom }})
+      .then((data) => {
+        showRecordsRef.current += options.pageSize;
+        setLogs([ ...logs, ...data.journal_logs ]);
+      });
+  };
+
+  const reload = () => {
+    const top = formatDate(initialDate);
+    const bottom = formatDate(decreaseDate(initialDate, showRecordsRef.current + options.pageSize));
+
+    // console.log('@reload', top, bottom, showRecordsRef.current)
+    return fetchEntries({ variables: { top, bottom }})
+      .then((data) => {
+        showRecordsRef.current = options.pageSize;
+        setLogs([ ...data.journal_logs ]);
+      });
+  }
+
+  // first load
+  useEffect(() => {
+    loadMore();
+  }, []); // eslint-disable-line
 
   return {
+    today: formatDate(initialDate),
     entries,
-    loadMore: () => setShowRecords(entries.length + options.pageSize),
+    loading,
+    error,
+    loadMore,
+    reload,
   };
 };
 

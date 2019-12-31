@@ -20,7 +20,7 @@ const styles = {
 
 const IonAvatarDate = ({ date: inputDate }) => {
   const date = inputDate instanceof Date ? inputDate : new Date(inputDate);
-  const day = date.getDay().toString().padStart(2, 0);
+  const day = date.getDate().toString().padStart(2, 0);
   const month = date.toLocaleString('default', { month: 'short' });
   const year = date.getFullYear().toString().substr(2, 4);
 

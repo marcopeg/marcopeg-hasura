@@ -11,6 +11,8 @@ import {
   IonFabButton,
   IonIcon,
   IonList,
+  IonRefresher,
+  IonRefresherContent,
 } from '@ionic/react';
 import { add, arrowBack } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
@@ -35,7 +37,10 @@ const formatDate = (date) => {
 const Journal = () => {
   const [ logDate, setLogDate ] = useState(formatDate(new Date()));
   const [ showModal, setShowModal ] = useState(false)
-  const { entries, loadMore } = useJournalHistory();
+  const { today, entries, loadMore, reload } = useJournalHistory();
+
+  const reloadList = (evt) =>
+    reload().finally(() => evt.detail.complete());
 
   return (
     <IonPage>
@@ -50,6 +55,14 @@ const Journal = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
+        <IonRefresher slot="fixed" onIonRefresh={reloadList}>
+          <IonRefresherContent
+            pullingIcon="arrow-dropdown"
+            pullingText="Pull to refresh"
+            refreshingSpinner="circles"
+            refreshingText="Refreshing...">
+          </IonRefresherContent>
+        </IonRefresher>
         <IonList lines={'full'}>
           {entries.map((entry) => (
             <JournalEntry
@@ -62,11 +75,20 @@ const Journal = () => {
             />
           ))}
         </IonList>
-        <hr />
-        <button onClick={loadMore}>load more</button>
+        <IonButton
+          onClick={loadMore}
+          expand={'full'}
+          fill={'clear'}
+          size={'small'}
+        >
+          <IonIcon icon={add} /> load more
+        </IonButton>
       </IonContent>
       <IonFab vertical="bottom" horizontal="end" slot="fixed">
-        <IonFabButton onClick={() => setShowModal(true)}>
+        <IonFabButton onClick={() => {
+          setLogDate(today);
+          setShowModal(true);
+        }}>
           <IonIcon icon={add} />
         </IonFabButton>
       </IonFab>
