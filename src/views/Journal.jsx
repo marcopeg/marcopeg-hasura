@@ -13,7 +13,9 @@ import {
 } from '@ionic/react';
 import { add, arrowBack } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
-import JournalEntry from './JournalEntry';
+import JournalEntryModal from '../containers/JournalEntryModal';
+import useJournalHistory from '../state/use-journal-history';
+import JournalEntry from '../components/JournalEntry';
 
 const formatDate = (date) => {
   var d = new Date(date),
@@ -31,7 +33,8 @@ const formatDate = (date) => {
 
 const Journal = () => {
   const [ logDate, setLogDate ] = useState(formatDate(new Date()));
-  const [ showModal, setShowModal ] = useState(true)
+  const [ showModal, setShowModal ] = useState(false)
+  const { entries, loadMore } = useJournalHistory();
 
   return (
     <IonPage>
@@ -46,25 +49,25 @@ const Journal = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <IonButton onClick={() => {
-          setLogDate('2019-12-29')
-          setShowModal(true)
-        }}>2019-12-29</IonButton>
-        <IonButton onClick={() => {
-          setLogDate('2019-12-30')
-          setShowModal(true)
-        }}>2019-12-30</IonButton>
-        <IonButton onClick={() => {
-          setLogDate('2019-12-31')
-          setShowModal(true)
-        }}>2019-12-31</IonButton>
+        {entries.map((entry, i) => (
+          <JournalEntry
+            {...entry}
+            key={entry.logDate}
+            onDisclose={() => {
+              setLogDate(entry.logDate);
+              setShowModal(true);
+            }}
+          />
+        ))}
+        <hr />
+        <button onClick={loadMore}>load more</button>
       </IonContent>
       <IonFab vertical="bottom" horizontal="end" slot="fixed">
         <IonFabButton onClick={() => setShowModal(true)}>
           <IonIcon icon={add} />
         </IonFabButton>
       </IonFab>
-      <JournalEntry
+      <JournalEntryModal
         isOpen={showModal}
         logDate={logDate}
         onDismiss={() => setShowModal(false)}
