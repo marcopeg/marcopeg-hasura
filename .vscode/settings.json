@@ -1,0 +1,10 @@
+{
+    "eslint.workingDirectories": [
+      "services/frontend",
+    ],
+    "files.watcherExclude": {
+        "**/.git/objects/**": true,
+        "**/node_modules/**": true,
+        "**/data/postgres/**": true
+    }
+  }
