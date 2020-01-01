@@ -7,7 +7,11 @@ const LOAD_DAILY_ENTRIES = gql`
   query loadDailyEntries (
     $logDate: date!
   ) {
-    journal_questions {
+    journal_questions (
+      order_by: {
+        order: asc
+      }
+    ) {
       id
       type
       text
@@ -173,9 +177,13 @@ const useJournalEntry = (logDate, options = {
       return [];
     }
 
-    return fetchData.journal_questions
+    const questions = fetchData.journal_questions
       .map(formatQuestion)
       .map($ => decorateAnswer($, answers, setAnswers));
+
+    // questions.sort((a, b) => a.order - b.order);
+
+    return questions;
   }, [fetchData, answers]);
 
   // keep note of open changes that await persistance
