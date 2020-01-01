@@ -12,4 +12,4 @@ echo ""
 
 mkdir -p ${HUMBLE_DATA}
 mkdir -p ${HUMBLE_BACKUP}
-docker run --rm postgres pg_dump --no-owner --dbname=${CONN_STR} > ${ABS_PATH}
+docker run --rm postgres pg_dump --dbname=${CONN_STR} > ${ABS_PATH}
