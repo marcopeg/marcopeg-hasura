@@ -6,7 +6,7 @@ import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 
 const httpBaseUrl = 'https://marcopeg-hasura.herokuapp.com';
-const wsBaseUrl = 'ws://marcopeg-hasura.herokuapp.com';
+const wsBaseUrl = 'wss://marcopeg-hasura.herokuapp.com';
 
 export const createApolloClient = (token) => {
   // #2 in development mode "token" will contain "x-hasura-" headers
