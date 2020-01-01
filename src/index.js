@@ -29,9 +29,9 @@ import './index.css';
 ReactDOM.render(
   <IonApp>
     <AuthProvider
-      domain={'marcopeg.eu.auth0.com'}
-      client_id={'1dFca4fBVhVYhMiF9K96EL6lsfmqRgD6'}
-      audience={'https://marcopeg.eu.auth0.com/api/v2/'}
+      domain={process.env.REACT_APP_AUTH0_DOMAIN}
+      client_id={process.env.REACT_APP_AUTH0_CLIENT_ID}
+      audience={process.env.REACT_APP_AUTH0_AUDIENCE}
       redirect_uri={window.location.origin}
     >
       <ApolloProvider>
