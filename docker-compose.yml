@@ -1,0 +1,14 @@
+version: '2.1'
+services:
+  postgres:
+    image: postgres:9.6
+    ports:
+      - ${PG_PORT:-5432}:5432
+    volumes:
+      - ${HUMBLE_DATA:-./data}/postgres:/var/lib/postgresql/data:consistent
+      - ${HUMBLE_DATA:-./data}/backup:/backup:consistent
+      - ./services/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:delegated
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
