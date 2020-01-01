@@ -9,9 +9,11 @@ const httpBaseUrl = 'https://marcopeg-hasura.herokuapp.com';
 const wsBaseUrl = 'ws://marcopeg-hasura.herokuapp.com';
 
 export const createApolloClient = (token) => {
-  const headers = {
-    authorization: token ? `Bearer ${token}` : '',
-  };
+  // #2 in development mode "token" will contain "x-hasura-" headers
+  //    that gain login to a test user without Auth0 being involved.
+  const headers = (typeof token === 'object')
+    ? token
+    : { authorization: token ? `Bearer ${token}` : '' };
 
   const cache = new InMemoryCache();
 
