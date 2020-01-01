@@ -1,12 +1,60 @@
-/* eslint-disable */
 import React, { useState, useEffect, useContext } from 'react';
 import createAuth0Client from '@auth0/auth0-spa-js';
 import history from '../history';
 
+const REACT_APP_DEV_TOKEN = process.env.REACT_APP_DEV_TOKEN;
+
 export const Auth0Context = React.createContext();
 export const useAuth = () => useContext(Auth0Context);
 
-export const AuthProvider = ({
+/**
+ * AuthProvider -- DEVELOPMENT
+ * returns a static user info and completely skips Auth0
+ */
+const AuthProviderDev = ({ children }) => {
+  const [ user, secret ] = REACT_APP_DEV_TOKEN.split('@');
+  const [ userId, userRole ] = user.split(':');
+
+  // try to get dev user info from environment variables
+  let userData = null;
+  try {
+    userData = JSON.parse(process.env.REACT_APP_DEV_USER);
+  } catch (err) {} // eslint-disable-line
+
+  return (
+    <Auth0Context.Provider
+      value={{
+        // states
+        isReady: true,
+        isLoading: false,
+        isAuthenticated: true,
+
+        // data
+        user: userData || {
+          username: 'John Doe',
+          email: 'jdoe@foobar.com',
+        },
+        token: {
+          'x-hasura-admin-secret': secret,
+          'x-hasura-role': userRole,
+          'x-hasura-user-id': userId,
+        },
+
+        // api
+        login: () => {},
+        logout: () => {},
+      }}
+    >
+      {children}
+    </Auth0Context.Provider>
+  );
+};
+
+/**
+ * AuthProvider -- PRODUCTION
+ * Runs through the normal Auth0 flow
+ */
+const AuthProviderProd = ({
   children,
   rootURL = window.location.origin,
   rootURI = window.location.pathname,
@@ -94,3 +142,7 @@ export const AuthProvider = ({
     </Auth0Context.Provider>
   );
 };
+
+export const AuthProvider = REACT_APP_DEV_TOKEN
+  ? AuthProviderDev
+  : AuthProviderProd;

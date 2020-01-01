@@ -2,12 +2,12 @@ import { useState, useRef, useMemo, useEffect } from 'react';
 import { useLazyQuery } from '../lib/apollo';
 import { gql } from 'apollo-boost';
 
-const FETCH_ENTRIES = gql`
+export const FETCH_JOURNAL_ENTRIES = gql`
   query fetchEntries (
     $top: date!
     $bottom: date!
   ) {
-    journal_logs(
+    journal_logs (
       order_by: {
         created_at_day: desc
       }
@@ -87,7 +87,7 @@ const useJournalHistory = (options = {
   const [ fetchEntries, {
     loading,
     error,
-  }] = useLazyQuery(FETCH_ENTRIES);
+  }] = useLazyQuery(FETCH_JOURNAL_ENTRIES);
 
   // calculates the list of visible entries from today into the past
   const entries = useMemo(() => {
@@ -117,7 +117,7 @@ const useJournalHistory = (options = {
     const top = formatDate(lastDate);
     const bottom = formatDate(decreaseDate(initialDate, showRecordsRef.current + options.pageSize));
 
-    // console.log('@loadMore', top, bottom, showRecordsRef.current)
+    console.log('@loadMore', top, bottom, showRecordsRef.current)
     return fetchEntries({ variables: { top, bottom }})
       .then((data) => {
         showRecordsRef.current += options.pageSize;
