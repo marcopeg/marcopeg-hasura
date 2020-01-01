@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
+import { FETCH_JOURNAL_ENTRIES } from './use-journal-history';
 
 const LOAD_DAILY_ENTRIES = gql`
   query loadDailyEntries (
@@ -31,6 +32,12 @@ const UPDATE_DAILY_ENTRIES = gql`
       }
     ) {
       affected_rows
+      returning {
+        question_id
+        created_at_day
+        text
+        data
+      }
     }
   }
 `
@@ -90,7 +97,68 @@ const useJournalEntry = (logDate, options = {
   const [ updateEntries, {
     loading: isUpdating,
     error: updateError,
-  }] = useMutation(UPDATE_DAILY_ENTRIES);
+  }] = useMutation(UPDATE_DAILY_ENTRIES, {
+    update: (cache, { data: { insert_journal_logs: { returning } }}) => {
+      console.log('@updateCache')
+      console.log( returning)
+
+      // extract all the variables for the query interested by the data range
+      const queries = Object.keys(cache.data.data)
+        .filter(key => key.match(/^ROOT_QUERY.journal_logs/))
+        .map(key => ({
+          key,
+          date: cache.data.data[key].created_at_day
+        }))
+        .filter(item => item.date === logDate)
+        .map((data) => {
+          const { key } = data;
+          const start = key.indexOf('(') + 1;
+          const end = key.lastIndexOf(')') - start;
+          const json = JSON.parse(key.substr(start, end));
+
+          return {
+            top: json.where.created_at_day._lte,
+            bottom: json.where.created_at_day._gte,
+          }
+        });
+
+      queries.forEach((variables) => {
+        try {
+          const cached = cache.readQuery({ query: FETCH_JOURNAL_ENTRIES, variables })
+          // const updated = cached.journal_logs.map((entry) => {
+          //   const questionId = entry.journal_question.id;
+          //   const createdAtDay = entry.created_at_day;
+
+          //   const update = returning.find($ => $.created_at_day === createdAtDay && $.question_id === questionId);
+
+          //   if (update) {
+          //     return {
+          //       ...entry,
+          //       text: update.text,
+          //       data: update.data,
+          //     };
+          //   } else {
+          //     return entry;
+          //   }
+          // });
+
+          console.log(cached)
+          cached.journal_logs[0].text = "fooooo"
+
+          cache.writeQuery({
+            query: FETCH_JOURNAL_ENTRIES,
+            variables,
+            data: {
+              journal_logs: []
+            },
+          })
+
+        } catch (err) {
+          console.log(err.message)
+        }
+      });
+    },
+  });
 
   // re-fetch on logDate change
   useEffect(() => {
