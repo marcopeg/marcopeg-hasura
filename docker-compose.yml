@@ -1,14 +1,24 @@
-version: '2.1'
+version: '3.6'
 services:
   postgres:
     image: postgres:9.6
+    restart: always
     ports:
       - ${PG_PORT:-5432}:5432
     volumes:
       - ${HUMBLE_DATA:-./data}/postgres:/var/lib/postgresql/data:consistent
       - ${HUMBLE_DATA:-./data}/backup:/backup:consistent
       - ./services/postgres/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:delegated
+
+  hasura:
+    image: hasura/graphql-engine:v1.0.0
+    ports:
+      - ${HASURA_PORT:-8080}:8080
+    depends_on:
+      - "postgres"
+    restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=postgres
+      HASURA_GRAPHQL_DATABASE_URL: postgres://postgres:@postgres:5432/postgres
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true" # set to "false" to disable console
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_ADMIN_SECRET:-qwerty}
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256", "key":"dd5dd7i2vddf786vs7v3fgb87987vdsc7sd98"}'

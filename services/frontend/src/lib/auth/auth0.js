@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import createAuth0Client from '@auth0/auth0-spa-js';
 import history from '../history';
 
-const REACT_APP_DEV_TOKEN = process.env.REACT_APP_DEV_TOKEN;
+const REACT_APP_HASURA_DEV_TOKEN = process.env.REACT_APP_HASURA_DEV_TOKEN;
 
 export const Auth0Context = React.createContext();
 export const useAuth = () => useContext(Auth0Context);
@@ -12,13 +12,13 @@ export const useAuth = () => useContext(Auth0Context);
  * returns a static user info and completely skips Auth0
  */
 const AuthProviderDev = ({ children }) => {
-  const [ user, secret ] = REACT_APP_DEV_TOKEN.split('@');
+  const [ user, secret ] = REACT_APP_HASURA_DEV_TOKEN.split('@');
   const [ userId, userRole ] = user.split(':');
 
   // try to get dev user info from environment variables
   let userData = null;
   try {
-    userData = JSON.parse(process.env.REACT_APP_DEV_USER);
+    userData = JSON.parse(process.env.REACT_APP_HASURA_DEV_USER);
   } catch (err) {} // eslint-disable-line
 
   return (
@@ -143,6 +143,6 @@ const AuthProviderProd = ({
   );
 };
 
-export const AuthProvider = REACT_APP_DEV_TOKEN
+export const AuthProvider = REACT_APP_HASURA_DEV_TOKEN
   ? AuthProviderDev
   : AuthProviderProd;

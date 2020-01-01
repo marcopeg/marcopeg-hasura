@@ -5,8 +5,9 @@ import { WebSocketLink } from 'apollo-link-ws';
 import { split } from 'apollo-link';
 import { getMainDefinition } from 'apollo-utilities';
 
-const httpBaseUrl = 'https://marcopeg-hasura.herokuapp.com';
-const wsBaseUrl = 'wss://marcopeg-hasura.herokuapp.com';
+// Uses build time variables to connect to the backend
+const httpBaseUrl = process.env.REACT_APP_HASURA_URL;
+const wsBaseUrl = process.env.REACT_APP_HASURA_WS;
 
 export const createApolloClient = (token) => {
   // #2 in development mode "token" will contain "x-hasura-" headers
