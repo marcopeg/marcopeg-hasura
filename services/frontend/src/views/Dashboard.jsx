@@ -1,33 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IonPage,
   IonContent,
   IonHeader,
   IonTitle,
   IonToolbar,
+  IonButtons,
   IonButton,
+  IonIcon,
 } from '@ionic/react';
-import { Link } from 'react-router-dom';
+import { home } from 'ionicons/icons'
+
 import { withAuth } from '../lib/auth';
+import ExpenseEntryModal from '../containers/ExpenseEntryModal';
 
 const Dashboard = ({ auth }) => {
+  const [ showExpenseModal, setShowExpenseModal ] = useState(true)
+
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Dashboard</IonTitle>
+          <IonButtons slot="start">
+            <IonButton routerLink="/" routerDirection="root">
+              <IonIcon icon={home} />
+            </IonButton>
+          </IonButtons>
+          <IonTitle>{auth.user.username}</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
-        <div>
-          Welcome {auth.user.email}
-          <button onClick={auth.logout}>logout</button>
-        </div>
-        <Link to="/">home</Link>
-        <br />
-        <Link to="/journal">journal</Link>
-        <hr />
-        <IonButton routerLink="/">Go GOme</IonButton>
+
+        <IonButton expand="block" routerLink="/journal">Open Journal</IonButton>
+        <IonButton expand="block" onClick={() => setShowExpenseModal(true)}>Log Expense</IonButton>
+        <IonButton expand="block" fill="clear" color="danger" onClick={auth.logout}>Logout</IonButton>
+
+        <ExpenseEntryModal
+          isOpen={showExpenseModal}
+          onDismiss={() => setShowExpenseModal(false)}
+        />
       </IonContent>
     </IonPage>
   )
