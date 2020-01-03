@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from 'react';
 import { useLazyQuery } from '../lib/apollo';
 import { gql } from 'apollo-boost';
+import { useJournalChanges } from './use-journal-changes';
 
 export const FETCH_JOURNAL_ENTRIES = gql`
   query fetchEntries (
@@ -24,6 +25,7 @@ export const FETCH_JOURNAL_ENTRIES = gql`
       }
     ) {
       text
+      user_id
       created_at_day
       journal_question {
         id
@@ -83,6 +85,7 @@ const useJournalHistory = (options = {
   const initialDate = useMemo(() => new Date(), []);
   const [ logs, setLogs ] = useState([]);
   const showRecordsRef = useRef(0);
+  const [{ records: journalChanges }, { resetJournalRecords }] = useJournalChanges();
 
   const [ fetchEntries, {
     loading,
@@ -134,6 +137,7 @@ const useJournalHistory = (options = {
       .then((data) => {
         showRecordsRef.current = options.pageSize;
         setLogs([ ...data.journal_logs ]);
+        resetJournalRecords();
       });
   }
 
@@ -145,6 +149,7 @@ const useJournalHistory = (options = {
   return {
     today: formatDate(initialDate),
     entries,
+    changes: journalChanges,
     loading,
     error,
     loadMore,
