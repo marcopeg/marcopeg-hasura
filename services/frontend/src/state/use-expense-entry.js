@@ -7,7 +7,7 @@ const LOAD_PROJECTS_LIST = gql`
     expense_projects_list {
       id
       name
-      categories(order_by: {order: desc, notes: asc}) {
+      categories(order_by: {order: asc}) {
         id
         name
         notes
