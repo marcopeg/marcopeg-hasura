@@ -45,8 +45,12 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
           <IonTitle>Expenses</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={async () => {
-              await submit();
-              onDismiss();
+              try {
+                await submit();
+                onDismiss();
+              } catch (err) {
+                alert(err.message);
+              }
             }}>
               Save
             </IonButton>

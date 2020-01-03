@@ -95,16 +95,13 @@ const useExpenseEntry = () => {
 
   const submit = async () => {
     if (!amount) {
-      alert('Missing amount!')
-      return;
+      throw new Error('Missing amount!')
     }
     if (!project) {
-      alert('Missing project!')
-      return;
+      throw new Error('Missing project!')
     }
     if (!category) {
-      alert('Missing category!')
-      return;
+      throw new Error('Missing category!')
     }
 
     await saveReport({
