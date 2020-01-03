@@ -48,7 +48,7 @@ const Journal = () => {
         <IonToolbar>
           <IonTitle>Journal</IonTitle>
           <IonButtons slot="start">
-            <IonButton routerLink={'/dashboard'} routerDirection={'back'}>
+            <IonButton routerLink={'/dashboard'} routerDirection={'root'}>
               <IonIcon icon={arrowBack} />
             </IonButton>
           </IonButtons>

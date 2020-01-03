@@ -1,35 +1,66 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IonPage,
   IonContent,
   IonHeader,
+  IonFooter,
   IonTitle,
   IonToolbar,
+  IonButtons,
   IonButton,
+  IonIcon,
+  IonItem,
+  IonLabel
 } from '@ionic/react';
-import { Link } from 'react-router-dom';
+import { home, basket, paper } from 'ionicons/icons'
+
 import { withAuth } from '../lib/auth';
+import ExpenseEntryModal from '../containers/ExpenseEntryModal';
 
 const Dashboard = ({ auth }) => {
+  const [ showExpenseModal, setShowExpenseModal ] = useState(false)
+
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Dashboard</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <div>
-          Welcome {auth.user.email}
-          <button onClick={auth.logout}>logout</button>
-        </div>
-        <Link to="/">home</Link>
-        <br />
-        <Link to="/journal">journal</Link>
-        <hr />
-        <IonButton routerLink="/">Go GOme</IonButton>
-      </IonContent>
-    </IonPage>
+    <>
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonButton routerLink="/" routerDirection="root">
+                <IonIcon icon={home} />
+              </IonButton>
+            </IonButtons>
+            <IonTitle>{auth.user.username}</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <IonItem
+            button
+            lines="none"
+            onClick={() => setShowExpenseModal(true)}
+          >
+            <IonLabel>Log a new Expense</IonLabel>
+            <IonIcon icon={basket} slot="start" />
+          </IonItem>
+          <IonItem
+            button
+            lines="none"
+            routerLink="/journal"
+            routerDirection="root"
+          >
+            <IonLabel>Open your Journal</IonLabel>
+            <IonIcon icon={paper} slot="start" />
+          </IonItem>
+        </IonContent>
+        <IonFooter>
+          <IonButton expand="block" fill="clear" color="danger" onClick={auth.logout}>Logout</IonButton>
+        </IonFooter>
+      </IonPage>
+      <ExpenseEntryModal
+        isOpen={showExpenseModal}
+        onDismiss={() => setShowExpenseModal(false)}
+      />
+    </>
   )
 };
 
