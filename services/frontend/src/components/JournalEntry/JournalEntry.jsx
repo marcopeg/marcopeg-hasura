@@ -14,7 +14,9 @@ const types = {
 };
 
 
-const JournalEntry = ({ logDate, onDisclose, entries }) => {
+const JournalEntry = ({ logDate, onDisclose, entries, changes }) => {
+  // console.log(logDate, entries, changes)
+
   return (
     <IonItem onClick={onDisclose}>
       <IonAvatarDate date={logDate} />
@@ -22,6 +24,7 @@ const JournalEntry = ({ logDate, onDisclose, entries }) => {
         {entries.map((entry, index) => React.createElement(types[entry.type], {
           ...entry,
           entries,
+          changes,
           entryIndex: index,
           key: `${logDate}--${entry.questionId}`,
         }))}
