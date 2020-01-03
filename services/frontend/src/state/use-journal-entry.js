@@ -47,6 +47,7 @@ const UPDATE_DAILY_ENTRIES = gql`
           type
           order
           data
+          show_in_journal
         }
         data
       }

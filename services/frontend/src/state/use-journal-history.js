@@ -87,7 +87,9 @@ const getUpdatedLogs = (logs, changes) => {
   }), {})
 
   // override with any collected change
-  Object.keys(changes).forEach((key) => (logsMap[key] = changes[key]));
+  Object.keys(changes)
+    .filter((key) => changes[key].journal_question.show_in_journal === true)
+    .forEach((key) => (logsMap[key] = changes[key]));
 
   return Object.values(logsMap);
 }
