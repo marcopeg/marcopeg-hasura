@@ -3,44 +3,64 @@ import {
   IonPage,
   IonContent,
   IonHeader,
+  IonFooter,
   IonTitle,
   IonToolbar,
   IonButtons,
   IonButton,
   IonIcon,
+  IonItem,
+  IonLabel
 } from '@ionic/react';
-import { home } from 'ionicons/icons'
+import { home, basket, paper } from 'ionicons/icons'
 
 import { withAuth } from '../lib/auth';
 import ExpenseEntryModal from '../containers/ExpenseEntryModal';
 
 const Dashboard = ({ auth }) => {
-  const [ showExpenseModal, setShowExpenseModal ] = useState(true)
+  const [ showExpenseModal, setShowExpenseModal ] = useState(false)
 
   return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton routerLink="/" routerDirection="root">
-              <IonIcon icon={home} />
-            </IonButton>
-          </IonButtons>
-          <IonTitle>{auth.user.username}</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-
-        <IonButton expand="block" routerLink="/journal">Open Journal</IonButton>
-        <IonButton expand="block" onClick={() => setShowExpenseModal(true)}>Log Expense</IonButton>
-        <IonButton expand="block" fill="clear" color="danger" onClick={auth.logout}>Logout</IonButton>
-
-        <ExpenseEntryModal
-          isOpen={showExpenseModal}
-          onDismiss={() => setShowExpenseModal(false)}
-        />
-      </IonContent>
-    </IonPage>
+    <>
+      <IonPage>
+        <IonHeader>
+          <IonToolbar>
+            <IonButtons slot="start">
+              <IonButton routerLink="/" routerDirection="root">
+                <IonIcon icon={home} />
+              </IonButton>
+            </IonButtons>
+            <IonTitle>{auth.user.username}</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent className="ion-padding">
+          <IonItem
+            button
+            lines="none"
+            onClick={() => setShowExpenseModal(true)}
+          >
+            <IonLabel>Log a new Expense</IonLabel>
+            <IonIcon icon={basket} slot="start" />
+          </IonItem>
+          <IonItem
+            button
+            lines="none"
+            routerLink="/journal"
+            routerDirection="root"
+          >
+            <IonLabel>Open your Journal</IonLabel>
+            <IonIcon icon={paper} slot="start" />
+          </IonItem>
+        </IonContent>
+        <IonFooter>
+          <IonButton expand="block" fill="clear" color="danger" onClick={auth.logout}>Logout</IonButton>
+        </IonFooter>
+      </IonPage>
+      <ExpenseEntryModal
+        isOpen={showExpenseModal}
+        onDismiss={() => setShowExpenseModal(false)}
+      />
+    </>
   )
 };
 

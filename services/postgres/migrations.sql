@@ -56,24 +56,21 @@ CREATE TABLE expense_transactions (
 -- table to pick list of projects on which a user has access
 create or replace view expense_projects_list as
 select
-	p.id as id,
-	p.user_id as owner_id,
-	j.user_id as member_id,
-	p.name, p.is_active, p.order, p.data, p.created_at
+	p.*,
+	j.member_id as member_id
 from expense_projects as p
-join expense_projects_users as j on p.id = j.project_id;
-
--- table to pick list of categories related to a user/project
-create view expense_categories_list as
-select c.id as id,
-	   p.id as project_id,
-       c.name as name,
-       c.data as data,
-       c.order as order,
-       p.user_id as owner_id,
-       j.user_id as member_id
-from expense_categories as c
-join expense_projects as p on p.id = c.project_id
 join expense_projects_users as j on p.id = j.project_id
+where p.is_active = true
+order by p.order desc;
+
+-- table to pick list of categories on which a user has access
+create or replace view expense_categories_list as
+select
+	c.*,
+	c.created_by as owner_id,
+	j.member_id as member_id
+from expense_categories as c
+join expense_projects_users as j on c.project_id = j.project_id
+join expense_projects as p on c.project_id = p.id
 where c.is_active = true
 order by c.order desc;
