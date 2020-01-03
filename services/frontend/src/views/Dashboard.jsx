@@ -6,13 +6,12 @@ import {
   IonFooter,
   IonTitle,
   IonToolbar,
-  IonButtons,
   IonButton,
   IonIcon,
   IonItem,
   IonLabel
 } from '@ionic/react';
-import { home, basket, paper } from 'ionicons/icons'
+import { basket, paper } from 'ionicons/icons'
 
 import { withAuth } from '../lib/auth';
 import ExpenseEntryModal from '../containers/ExpenseEntryModal';
@@ -24,11 +23,6 @@ const Dashboard = ({ auth }) => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start">
-            <IonButton routerLink="/" routerDirection="root">
-              <IonIcon icon={home} />
-            </IonButton>
-          </IonButtons>
           <IonTitle>{auth.user.username || auth.user.email}</IonTitle>
         </IonToolbar>
       </IonHeader>

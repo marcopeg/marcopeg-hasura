@@ -13,9 +13,8 @@ import {
   IonLabel,
   IonInput,
   IonDatetime,
-  IonTextarea,
+  // IonTextarea,
   IonIcon,
-  IonList,
 } from '@ionic/react';
 import { close } from 'ionicons/icons'
 import useExpenseEntry from '../state/use-expense-entry';

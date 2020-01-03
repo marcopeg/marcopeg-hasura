@@ -120,7 +120,6 @@ const AuthProviderProd = ({
     client.logout({ returnTo: rootURL });
   }
 
-
   return (
     <Auth0Context.Provider
       value={{
