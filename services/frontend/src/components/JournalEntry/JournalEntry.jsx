@@ -15,7 +15,7 @@ const types = {
 
 
 const JournalEntry = ({ logDate, onDisclose, entries, changes }) => {
-  console.log(logDate, entries, changes)
+  // console.log(logDate, entries, changes)
 
   return (
     <IonItem onClick={onDisclose}>

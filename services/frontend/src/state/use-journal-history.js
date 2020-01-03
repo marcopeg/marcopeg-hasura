@@ -79,13 +79,26 @@ const formatEntry = (entry) => {
   }
 }
 
+const getUpdatedLogs = (logs, changes) => {
+  // create a key based map of the current logs
+  const logsMap = logs.reduce((acc, curr) => ({
+    ...acc,
+    [`${curr.user_id}-${curr.journal_question.id}-${curr.created_at_day}`]: curr,
+  }), {})
+
+  // override with any collected change
+  Object.keys(changes).forEach((key) => (logsMap[key] = changes[key]));
+
+  return Object.values(logsMap);
+}
+
 const useJournalHistory = (options = {
   pageSize: 7,
 }) => {
   const initialDate = useMemo(() => new Date(), []);
   const [ logs, setLogs ] = useState([]);
   const showRecordsRef = useRef(0);
-  const [{ records: journalChanges }, { resetJournalRecords }] = useJournalChanges();
+  const [{ changes }, { resetJournalChanges }] = useJournalChanges();
 
   const [ fetchEntries, {
     loading,
@@ -98,7 +111,8 @@ const useJournalHistory = (options = {
     return makeList(showRecordsRef.current, (idx) => {
       const date = decreaseDate(initialDate, idx);
       const logDate = formatDate(date);
-      const entries = logs
+
+      const entries = getUpdatedLogs(logs, changes)
         .filter(log => log.created_at_day === logDate)
         .map(formatEntry)
 
@@ -110,7 +124,7 @@ const useJournalHistory = (options = {
         entries,
       }
     });
-  }, [ initialDate, logs ]);
+  }, [ initialDate, logs, changes ]);
 
   const loadMore = () => {
     const lastDate = logs.length
@@ -137,7 +151,7 @@ const useJournalHistory = (options = {
       .then((data) => {
         showRecordsRef.current = options.pageSize;
         setLogs([ ...data.journal_logs ]);
-        resetJournalRecords();
+        resetJournalChanges();
       });
   }
 
@@ -149,7 +163,7 @@ const useJournalHistory = (options = {
   return {
     today: formatDate(initialDate),
     entries,
-    changes: journalChanges,
+    changes,
     loading,
     error,
     loadMore,

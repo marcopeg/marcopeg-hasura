@@ -38,13 +38,17 @@ const UPDATE_DAILY_ENTRIES = gql`
     ) {
       affected_rows
       returning {
-        user_id
-        question_id
         text
-        data
+        user_id
         created_at_day
-        created_at
-        updated_at
+        journal_question {
+          id
+          text
+          type
+          order
+          data
+        }
+        data
       }
     }
   }
@@ -95,7 +99,7 @@ const useJournalEntry = (logDate, options = {
   const debounceUpdate = useRef(null);
   const [ answers, setAnswers ] = useState({});
   const [ hasChanges, setHasChanges ] = useState(false);
-  const [ _, { addJournalRecords } ] = useJournalChanges();
+  const [ _, { addJournalChanges } ] = useJournalChanges(); // eslint-disable-line
 
   const [ fetchEntries, {
     loading: isFetching,
@@ -216,14 +220,14 @@ const useJournalEntry = (logDate, options = {
       // on persis, reset the open changes note
       updateEntries({ variables: { records } })
         .then((res) => {
-          addJournalRecords(res.data.insert_journal_logs.returning);
+          addJournalChanges(res.data.insert_journal_logs.returning);
           setHasChanges(false);
         })
         .catch(err => console.log('Couldnt update the daily logs', err.message))
     }, options.debounce) ;
 
     return () => clearTimeout(debounceUpdate.current);
-  }, [ answers, logDate, options.debounce, updateEntries, addJournalRecords ]);
+  }, [ answers, logDate, options.debounce, updateEntries, addJournalChanges ]);
 
   return {
     isFetching,
