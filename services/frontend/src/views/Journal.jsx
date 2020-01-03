@@ -36,8 +36,8 @@ const formatDate = (date) => {
 
 const Journal = () => {
   const [ logDate, setLogDate ] = useState(formatDate(new Date()));
-  const [ showModal, setShowModal ] = useState(true)
-  const { today, entries, changes, loadMore, reload } = useJournalHistory();
+  const [ showModal, setShowModal ] = useState(false)
+  const { today, entries, loadMore, reload } = useJournalHistory();
 
   const reloadList = (evt) =>
     reload().finally(() => evt.detail.complete());
@@ -68,7 +68,6 @@ const Journal = () => {
             <JournalEntry
               {...entry}
               key={entry.logDate}
-              changes={changes}
               onDisclose={() => {
                 setLogDate(entry.logDate);
                 setShowModal(true);
