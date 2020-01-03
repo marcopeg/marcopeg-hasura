@@ -30,7 +30,7 @@ const Dashboard = ({ auth }) => {
                 <IonIcon icon={home} />
               </IonButton>
             </IonButtons>
-            <IonTitle>{auth.user.username}</IonTitle>
+            <IonTitle>{auth.user.username || auth.user.email}</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent className="ion-padding">
