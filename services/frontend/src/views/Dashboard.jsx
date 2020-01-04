@@ -9,7 +9,7 @@ import {
   IonButton,
   IonIcon,
   IonItem,
-  IonLabel
+  IonLabel,
 } from '@ionic/react';
 import { basket, paper } from 'ionicons/icons'
 
