@@ -15,6 +15,7 @@ import {
   IonDatetime,
   // IonTextarea,
   IonIcon,
+  IonNote,
 } from '@ionic/react';
 import { close } from 'ionicons/icons'
 import useExpenseEntry from '../state/use-expense-entry';
@@ -63,10 +64,14 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
           <IonInput
             type="number"
             inputmode="decimal"
+            placeholder={project.placeholder}
             style={{ textAlign: 'right' }}
             value={amount.value}
             onIonChange={(e) => amount.setValue(e.target.value)}
           />
+          {project.currency ? (
+            <IonNote slot="end">{project.currency}</IonNote>
+          ) : null}
         </IonItem>
         {options.projects.length > 1 ? (
           <IonItem>

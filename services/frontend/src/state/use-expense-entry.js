@@ -7,6 +7,7 @@ const LOAD_PROJECTS_LIST = gql`
     expense_projects_list {
       id
       name
+      data
       categories(order_by: {order: asc}) {
         id
         name
@@ -57,8 +58,11 @@ const useExpenseEntry = () => {
   const [ amount, setAmount ] = useState('');
   const [ date, setDate ] = useState(new Date());
   const [ notes, setNotes ] = useState('');
-
   const [ saveReport ] = useMutation(SAVE_EXPENSE_REPORT);
+
+  const currentProject = project
+    ? projects.data.expense_projects_list.find($ => $.id === project)
+    : null;
 
   // auto select the project in case there is only one value
   useEffect(() => {
@@ -125,6 +129,12 @@ const useExpenseEntry = () => {
     project: {
       value: project,
       setValue: setProject,
+      currency: currentProject
+        ? (currentProject.data || {}).currency || null
+        : null,
+      placeholder: currentProject
+        ? (currentProject.data || {}).placeholder || null
+        : null,
     },
     category: {
       value: category,
