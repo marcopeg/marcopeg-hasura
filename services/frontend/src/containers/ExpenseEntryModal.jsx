@@ -13,7 +13,7 @@ import {
   IonLabel,
   IonInput,
   IonDatetime,
-  // IonTextarea,
+  IonTextarea,
   IonIcon,
   IonNote,
 } from '@ionic/react';
@@ -110,31 +110,14 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
             onIonChange={(e) => date.setValue(new Date(e.target.value))}
           />
         </IonItem>
-        {/* <IonItem>
-          <IonLabel position="floating">
-            <IonLabel>Note:</IonLabel>
-            <IonTextarea
-              rows={4}
-              placeholder="Enter any notes here..."
-              value={notes.value}
-              onIonChange={(e) => notes.setValue(e.target.value)}
-            />
-
-          </IonLabel>
-        </IonItem> */}
         <IonItem>
-          <IonLabel style={{ width: '100%' }}>
-            <h4>Notes:</h4>
-            <textarea
-              rows={6}
-              value={notes.value}
-              onChange={(e) => notes.setValue(e.target.value)}
-              style={{
-                width: '100%',
-                outline: 0,
-              }}
-            />
-          </IonLabel>
+          <IonLabel position="floating">Note:</IonLabel>
+          <IonTextarea
+            rows={4}
+            placeholder="Enter any notes here..."
+            value={notes.value}
+            onIonChange={(e) => notes.setValue(e.target.value)}
+          />
         </IonItem>
       </IonContent>
     </IonModal>
