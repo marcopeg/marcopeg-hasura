@@ -17,7 +17,7 @@ import { withAuth } from '../lib/auth';
 import ExpenseEntryModal from '../containers/ExpenseEntryModal';
 
 const Dashboard = ({ auth }) => {
-  const [ showExpenseModal, setShowExpenseModal ] = useState(true)
+  const [ showExpenseModal, setShowExpenseModal ] = useState(false)
 
   return (
     <IonPage>
@@ -33,6 +33,15 @@ const Dashboard = ({ auth }) => {
           onClick={() => setShowExpenseModal(true)}
         >
           <IonLabel>Log a new Expense</IonLabel>
+          <IonIcon icon={basket} slot="start" />
+        </IonItem>
+        <IonItem
+          button
+          lines="none"
+          routerLink="/expense"
+          routerDirection="root"
+        >
+          <IonLabel>Expense History</IonLabel>
           <IonIcon icon={basket} slot="start" />
         </IonItem>
         <IonItem
