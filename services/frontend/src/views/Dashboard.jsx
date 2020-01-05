@@ -17,7 +17,7 @@ import { withAuth } from '../lib/auth';
 import ExpenseEntryModal from '../containers/ExpenseEntryModal';
 
 const Dashboard = ({ auth }) => {
-  const [ showExpenseModal, setShowExpenseModal ] = useState(false)
+  const [ showExpenseModal, setShowExpenseModal ] = useState(true)
 
   return (
     <IonPage>

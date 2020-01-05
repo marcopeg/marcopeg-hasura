@@ -24,6 +24,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
   const {
     project,
     category,
+    reporter,
     amount,
     date,
     notes,
@@ -51,6 +52,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
                 onDismiss();
               } catch (err) {
                 alert(err.message);
+                console.log(err)
               }
             }}>
               Save
@@ -73,7 +75,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
             <IonNote slot="end">{project.currency}</IonNote>
           ) : null}
         </IonItem>
-        {options.projects.length > 1 ? (
+        {options.projects.length > 2 ? (
           <IonItem>
             <IonLabel>Project:</IonLabel>
             <IonSelect
@@ -88,19 +90,36 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
             </IonSelect>
           </IonItem>
         ) : null}
-        <IonItem>
-          <IonLabel>Category:</IonLabel>
-          <IonSelect
-            interface="action-sheet"
-            placeholder="Select a category:"
-            value={category.value}
-            onIonChange={(e) => category.setValue(e.target.value)}
-          >
-            {options.categories.map(({ value, label }) => (
-              <IonSelectOption key={value} value={value}>{label}</IonSelectOption>
-            ))}
-          </IonSelect>
-        </IonItem>
+        {options.categories.length > 1 ? (
+          <IonItem>
+            <IonLabel>Category:</IonLabel>
+            <IonSelect
+              interface="action-sheet"
+              placeholder="Select a category:"
+              value={category.value}
+              onIonChange={(e) => category.setValue(e.target.value)}
+            >
+              {options.categories.map(({ value, label }) => (
+                <IonSelectOption key={value} value={value}>{label}</IonSelectOption>
+              ))}
+            </IonSelect>
+          </IonItem>
+        ) : null}
+        {options.reporters.length > 1 ? (
+          <IonItem>
+            <IonLabel>Reported by:</IonLabel>
+            <IonSelect
+              interface="action-sheet"
+              placeholder="Select a reporter:"
+              value={reporter.value}
+              onIonChange={(e) => reporter.setValue(e.target.value)}
+            >
+              {options.reporters.map(({ value, label }) => (
+                <IonSelectOption key={value} value={value}>{label}</IonSelectOption>
+              ))}
+            </IonSelect>
+          </IonItem>
+        ) : null}
         <IonItem>
           <IonLabel>When:</IonLabel>
           <IonDatetime
