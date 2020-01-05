@@ -79,11 +79,6 @@ const useExpenseEntry = () => {
   const [ notes, setNotes ] = useState('');
   const [ saveReport ] = useMutation(SAVE_EXPENSE_REPORT);
 
-
-  const currentProject = project
-    ? projects.data.expense_projects_list.find($ => $.id === project)
-    : null;
-
   // auto select the project in case there is only one value
   useEffect(() => {
     if (project !== null || !projects.data || projects.error) return;
@@ -127,6 +122,10 @@ const useExpenseEntry = () => {
 
   const currentUserId = (projects.data && projects.data.users && projects.data.users.length)
     ? projects.data.users[0].id
+    : null;
+
+  const currentProject = project
+    ? projects.data.expense_projects_list.find($ => $.id === project)
     : null;
 
   const projectsOptions = (projects.data && projects.data.expense_projects_list)
