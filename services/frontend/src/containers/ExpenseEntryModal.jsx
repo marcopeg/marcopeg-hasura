@@ -32,6 +32,10 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
     submit,
   } = useExpenseEntry();
 
+  const title = project.value
+    ? options.projects.find($ => $.value === project.value).label
+    : 'Expenses';
+
   return (
     <IonModal
       {...modalProps}
@@ -44,7 +48,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
               <IonIcon icon={close} />
             </IonButton>
           </IonButtons>
-          <IonTitle>Expenses</IonTitle>
+          <IonTitle>{title}</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={async () => {
               try {
@@ -75,7 +79,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
             <IonNote slot="end">{project.currency}</IonNote>
           ) : null}
         </IonItem>
-        {options.projects.length > 2 ? (
+        {options.projects.length > 1 ? (
           <IonItem>
             <IonLabel>Project:</IonLabel>
             <IonSelect
