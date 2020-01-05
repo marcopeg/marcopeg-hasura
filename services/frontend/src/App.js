@@ -6,13 +6,14 @@ import LoadingCurtain from './containers/LoadingCurtain';
 import HomePage from './views/HomePage';
 import Dashboard from './views/Dashboard';
 import Journal from './views/Journal';
-// import JournalEntry from './views/JournalEntry';
+import ExpenseHistory from './views/ExpenseHistory';
 
 const IonRoutes = () => (
   <IonReactRouter>
     <IonRouterOutlet id={'main'}>
       <Route path="/journal" exact component={Journal} />
       <Route path="/dashboard" exact component={Dashboard} />
+      <Route path="/expense" exact component={ExpenseHistory} />
       <Route path="/" exact component={HomePage} />
     </IonRouterOutlet>
   </IonReactRouter>
@@ -21,7 +22,7 @@ const IonRoutes = () => (
 const App = () => (
   <>
     <Switch>
-      <Route path="/(dashboard|journal)" component={IonRoutes} />
+      <Route path="/(dashboard|journal|expense)" component={IonRoutes} />
       <Route path="/" exact component={HomePage} />
     </Switch>
     <LoadingCurtain />

@@ -1,4 +1,15 @@
 --------------------------------------------------------------------
+-- Transactions History
+--------------------------------------------------------------------
+
+CREATE OR REPLACE VIEW expense_transactions_list AS
+SELECT t1.*, t2.member_id AS user_id
+FROM expense_transactions AS t1
+LEFT JOIN expense_projects_users AS t2 ON t1.project_id = t2.project_id;
+
+
+
+--------------------------------------------------------------------
 -- #11B Assign Expense entry to a different user
 -- (after backup)
 --------------------------------------------------------------------
