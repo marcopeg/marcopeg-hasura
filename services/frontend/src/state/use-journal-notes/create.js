@@ -7,7 +7,7 @@ import { updateCacheAfterCreate } from './lib/cache';
 
 const INITIAL_VALUES = { text: '' };
 
-const useJournalNotesForm = () => {
+const useJournalNotesCreate = () => {
   const [ insertNote ] = useMutation(INSERT_JOURNAL_NOTE, { update: updateCacheAfterCreate });
   const [ values, setValues ] = useState(INITIAL_VALUES);
 
@@ -29,4 +29,4 @@ const useJournalNotesForm = () => {
   };
 };
 
-export default useJournalNotesForm;
+export default useJournalNotesCreate;

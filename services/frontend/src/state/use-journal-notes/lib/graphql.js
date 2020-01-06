@@ -13,6 +13,22 @@ export const LOAD_JOURNAL_NOTES = gql`
   }
 `;
 
+export const LOAD_JOURNAL_NOTE = gql`
+  query loadJournalNote (
+    $noteId: Int!
+  ) {
+    journal_notes(where: {id: {_eq: $noteId}}) {
+      updated_by
+      updated_at
+      text
+      id
+      created_at
+      created_by
+      data
+    }
+  }
+`;
+
 export const REMOVE_JOURNAL_NOTES = gql`
   mutation removeJournalNotes (
     $ids: [Int!]
@@ -48,3 +64,25 @@ export const INSERT_JOURNAL_NOTE = gql`
     }
   }
 `;
+
+export const UPDATE_JOURNAL_NOTE = gql`
+  mutation updateJournalNote (
+    $noteId: Int!
+    $text: String!
+  ) {
+    update_journal_notes(
+      where: { id: {_eq: $noteId }},
+      _set: { text: $text }
+    ) {
+      returning {
+        id
+        text
+        data
+        created_at
+        created_by
+        updated_at
+        updated_by
+      }
+    }
+  }
+`

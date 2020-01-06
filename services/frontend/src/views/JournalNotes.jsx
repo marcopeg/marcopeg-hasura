@@ -27,20 +27,26 @@ import {
 import { add, close, trash, checkmark, arrowBack } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
 import useJournalNotesEntries from '../state/use-journal-notes/entries';
-import useJournalNotesForm from '../state/use-journal-notes/form';
+import useJournalNotesCreate from '../state/use-journal-notes/create';
+import useJournalNotesEdit from '../state/use-journal-notes/edit';
 
 const NEW_ITEM_ID = '$new';
 
-const ModalUI = ({ title, values, submit, onDismiss, ...modalProps }) => {
+const ModalUI = ({ title, values, submit, reset, onDismiss, ...modalProps }) => {
   const handleSubmit = async () => {
     await submit();
     onDismiss();
-  }
+  };
+  const handleDismiss = () => {
+    reset();
+    onDismiss();
+  };
+
   return (
     <IonModal {...modalProps} onDidDismiss={onDismiss}>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start" onClick={onDismiss}>
+          <IonButtons slot="start" onClick={handleDismiss}>
             <IonButton>
               <IonIcon icon={close} />
             </IonButton>
@@ -57,6 +63,7 @@ const ModalUI = ({ title, values, submit, onDismiss, ...modalProps }) => {
         <IonItem lines="none">
           <IonLabel position="floating">What's up?</IonLabel>
           <IonTextarea
+            {...values.text.options || {}}
             rows={25}
             value={values.text.value}
             onIonChange={(e) => values.text.update(e.target.value)}
@@ -73,13 +80,13 @@ const ModalUI = ({ title, values, submit, onDismiss, ...modalProps }) => {
 const ModalNew = ({ ...modalProps }) => (
   <ModalUI
     {...modalProps}
-    {...useJournalNotesForm()}
+    {...useJournalNotesCreate()}
     title="New Note"
   />
 );
 
 const ModalEdit = ({ noteId, ...modalProps }) => {
-  const formProps = useJournalNotesForm(noteId)
+  const formProps = useJournalNotesEdit(noteId)
   return (
     <ModalUI
       {...modalProps}
@@ -100,9 +107,8 @@ const NoteModal = ({ noteId, ...modalProps }) => {
 const JournalNotes = () => {
   const { entries, remove, reload } = useJournalNotesEntries();
   const [ modal, setModal ] = useState({
-    // noteId: NEW_ITEM_ID,
-    noteId: 55,
-    isOpen: true,
+    noteId: NEW_ITEM_ID,
+    isOpen: false,
   });
 
   const closeModal = () => setModal({ ...modal, isOpen: false });
