@@ -85,4 +85,5 @@ export const UPDATE_JOURNAL_NOTE = gql`
       }
     }
   }
-`
+`;
+

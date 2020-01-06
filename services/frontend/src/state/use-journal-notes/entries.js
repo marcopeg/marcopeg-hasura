@@ -6,7 +6,7 @@ import { LOAD_JOURNAL_NOTES, REMOVE_JOURNAL_NOTES } from './lib/graphql';
 import { updateCacheAfterRemove } from './lib/cache';
 
 const useJournalNotesEntries = () => {
-  const notesQuery = useQuery(LOAD_JOURNAL_NOTES);
+  const notesQuery = useQuery(LOAD_JOURNAL_NOTES, { fetchPolicy: 'cache-first' });
   const [removeNotes] = useMutation(REMOVE_JOURNAL_NOTES, { update: updateCacheAfterRemove });
 
   const entries = useMemo(() => {

@@ -6,7 +6,6 @@ import {
   IonModal,
   IonContent,
   IonHeader,
-  IonFooter,
   IonTitle,
   IonToolbar,
   IonButtons,
@@ -24,37 +23,20 @@ import {
   IonRefresher,
   IonRefresherContent,
 } from '@ionic/react';
-import { add, close, trash, checkmark, arrowBack } from 'ionicons/icons'
+import { add, trash, arrowBack } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
 import useJournalNotesEntries from '../state/use-journal-notes/entries';
-import useJournalNotesCreate from '../state/use-journal-notes/create';
-import useJournalNotesEdit from '../state/use-journal-notes/edit';
+import useJournalNotesUpsert, { NEW_ITEM_ID } from '../state/use-journal-notes/upsert';
 
-const NEW_ITEM_ID = '$new';
-
-const ModalUI = ({ title, values, submit, reset, onDismiss, ...modalProps }) => {
-  const handleSubmit = async () => {
-    await submit();
-    onDismiss();
-  };
-  const handleDismiss = () => {
-    reset();
-    onDismiss();
-  };
-
+const ModalUI = ({ title, values, hasChanges, onDismiss, ...modalProps }) => {
   return (
     <IonModal {...modalProps} onDidDismiss={onDismiss}>
       <IonHeader>
         <IonToolbar>
-          <IonButtons slot="start" onClick={handleDismiss}>
-            <IonButton>
-              <IonIcon icon={close} />
-            </IonButton>
-          </IonButtons>
           <IonTitle>{title}</IonTitle>
-          <IonButtons slot="end" onClick={handleSubmit}>
+          <IonButtons slot="end" onClick={onDismiss}>
             <IonButton>
-              <IonIcon icon={checkmark} />
+              {hasChanges ? <small>Saving...</small> : 'Done'}
             </IonButton>
           </IonButtons>
         </IonToolbar>
@@ -70,38 +52,17 @@ const ModalUI = ({ title, values, submit, reset, onDismiss, ...modalProps }) => 
           />
         </IonItem>
       </IonContent>
-      <IonFooter>
-        <IonButton expand="full" onClick={handleSubmit}>Save</IonButton>
-      </IonFooter>
     </IonModal>
   );
 };
 
-const ModalNew = ({ ...modalProps }) => (
-  <ModalUI
-    {...modalProps}
-    {...useJournalNotesCreate()}
-    title="New Note"
-  />
-);
-
-const ModalEdit = ({ noteId, ...modalProps }) => {
-  const formProps = useJournalNotesEdit(noteId)
+const NoteModal = ({ noteId, ...modalProps }) => {
   return (
     <ModalUI
       {...modalProps}
-      {...formProps}
-      title={`Edit ${noteId}`}
+      {...useJournalNotesUpsert(noteId)}
     />
   );
-};
-
-const NoteModal = ({ noteId, ...modalProps }) => {
-  const component = noteId === NEW_ITEM_ID ? ModalNew : ModalEdit;
-  return React.createElement(component, {
-    ...modalProps,
-    noteId,
-  });
 };
 
 const JournalNotes = () => {
