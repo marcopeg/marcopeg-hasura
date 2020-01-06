@@ -1,4 +1,21 @@
 --------------------------------------------------------------------
+-- #14 Add logs in a random journal form
+--------------------------------------------------------------------
+
+CREATE TABLE journal_notes (
+	"id" SERIAL PRIMARY KEY,
+	"user_id" integer REFERENCES users(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+	"text" text NOT NULL,
+	"data" jsonb,
+	"created_by" integer NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+	"created_at" timestamp with time zone NOT NULL DEFAULT now(),
+	"updated_by" integer NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+	"updated_at" timestamp with time zone NOT NULL DEFAULT now(),
+	CHECK ("text" <> '')
+);
+
+
+--------------------------------------------------------------------
 -- Transactions History
 --------------------------------------------------------------------
 

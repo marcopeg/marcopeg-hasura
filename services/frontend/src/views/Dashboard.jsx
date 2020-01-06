@@ -53,6 +53,15 @@ const Dashboard = ({ auth }) => {
           <IonLabel>Open your Journal</IonLabel>
           <IonIcon icon={paper} slot="start" />
         </IonItem>
+        <IonItem
+          button
+          lines="none"
+          routerLink="/journal/notes"
+          routerDirection="root"
+        >
+          <IonLabel>Open your Journal Notes</IonLabel>
+          <IonIcon icon={paper} slot="start" />
+        </IonItem>
       </IonContent>
       <IonFooter>
         <IonButton expand="block" fill="clear" color="danger" onClick={auth.logout}>Logout</IonButton>
