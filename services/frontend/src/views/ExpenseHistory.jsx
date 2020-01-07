@@ -22,10 +22,7 @@ import { withAuth } from '../lib/auth';
 import useExpenseProjects from '../state/use-expense-projects';
 
 const ExpenseHistory = () => {
-  const { projects, transactions, reload } = useExpenseProjects();
-
-  const reloadList = (evt) =>
-    reload().finally(() => evt.detail.complete());
+  const { projects, transactions, reload, loadMore } = useExpenseProjects();
 
   return (
     <IonPage>
@@ -40,7 +37,7 @@ const ExpenseHistory = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonRefresher slot="fixed" onIonRefresh={reloadList}>
+        <IonRefresher slot="fixed" onIonRefresh={reload}>
           <IonRefresherContent
             pullingIcon="arrow-dropdown"
             pullingText="Pull to refresh"
@@ -78,6 +75,13 @@ const ExpenseHistory = () => {
             </IonItem>
           ))}
         </IonList>
+        <IonButton
+          fill="clear"
+          expand="full"
+          onClick={loadMore}
+        >
+          Load More
+        </IonButton>
       </IonContent>
     </IonPage>
   );

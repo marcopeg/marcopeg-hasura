@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useLazyQuery } from '../lib/apollo';
+import { useState, useEffect, useMemo } from 'react';
+import { useQuery } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
 
 export const FETCH_EXPENSE_PROJECTS = gql`
@@ -18,10 +18,14 @@ export const FETCH_EXPENSE_PROJECTS = gql`
 export const FETCH_EXPENSE_TRANSACTIONS = gql`
   query fetchTransactions (
     $projectId: Int!
+    $limit: Int!
+    $offset: Int!
   ) {
     transactions: expense_transactions_list(
       where: { project_id: {_eq: $projectId } },
       order_by: { created_at: desc }
+      limit: $limit
+      offset: $offset
     ) {
       id
       created_at
@@ -80,62 +84,66 @@ const mapTransactions = (items, project) => {
 }
 
 const useExpenseProjects = () => {
-  const [ projects, setProjects ] = useState([]);
-  const [ transactions, setTransactions ] = useState([]);
-  const [ currentProject, setCurrentProject ] = useState(null);
+  const [ projectId, setProjectId ] = useState(null);
 
-  const [ fetchProjects ] = useLazyQuery(FETCH_EXPENSE_PROJECTS);
-  const [ fetchTransactions ] = useLazyQuery(FETCH_EXPENSE_TRANSACTIONS);
+  const projectsQuery = useQuery(FETCH_EXPENSE_PROJECTS);
 
-  // Load projects at boot time
-  useEffect(() => {
-    fetchProjects()
-      .then(({ projects }) => setProjects(projects))
-  }, []); // eslint-disable-line
-
-  // Set current project whenever the list of projects change
-  useEffect(() => {
-    if (projects.length >= 1) {
-      setCurrentProject(projects[0]);
-    }
-  }, [projects]);
-
-  // Load transactions when the selected project change
-  useEffect(() => {
-    if (currentProject) {
-      // console.log('@load transactions for', currentProject);
-      fetchTransactions({ variables: { projectId: currentProject.id }})
-        .then(({ transactions }) => {
-          const items = mapTransactions(transactions, currentProject);
-          setTransactions(items);
-        })
-    }
-  }, [ currentProject, fetchTransactions ]);
-
-  // Reset all data and reload
-  const reload = () => new Promise((resolve, reject) => {
-    const call = fetchProjects();
-
-    // reset data
-    setProjects([]);
-    setTransactions([]);
-    setCurrentProject(null);
-
-    // repopulate
-    call
-      .then(({ projects }) => setProjects(projects))
-      .then(resolve)
-      .catch(reject);
+  const transactionsQuery = useQuery(FETCH_EXPENSE_TRANSACTIONS, {
+    fetchPolicy: 'cache-first',
+    variables: { projectId, limit: 2, offset: 0 },
   });
+
+  const currentProject = useMemo(() => (
+    projectId
+      ? projectsQuery.data.projects.find($ => $.id === projectId)
+      : null
+  ), [ projectId, projectsQuery.data ]);
+
+  const projectsOptions = useMemo(() => {
+    if (!projectsQuery.data) return [];
+    if (!projectsQuery.data.projects) return [];
+    return projectsQuery.data.projects.map($ => ({ value: $.id, label: $.name }));
+  }, [projectsQuery.data]);
+
+  const transactions = useMemo(() => {
+    if (!transactionsQuery.data) return [];
+    if (!transactionsQuery.data.transactions) return [];
+    return mapTransactions(transactionsQuery.data.transactions, currentProject);
+  }, [ transactionsQuery.data, currentProject ]);
+
+  // Auto select project
+  useEffect(() => {
+    if (!projectId && projectsOptions.length) {
+      setProjectId(projectsOptions[0].value);
+    }
+  }, [ projectId, projectsOptions ]);
+
+  const reload = async (e) => {
+    await projectsQuery.refetch();
+    e.detail && e.detail.complete && e.detail.complete();
+  };
+
+  const loadMore = () =>
+    transactionsQuery.fetchMore({
+      variables: { offset: transactions.length },
+      updateQuery: (prev, { fetchMoreResult: next }) =>
+        next
+          ? { transactions: [
+              ...prev.transactions,
+              ...next.transactions
+            ]}
+          : prev
+    });
 
   return {
     projects: {
-      options: projects.map($ => ({ value: $.id, label: $.name })),
-      value: currentProject ? currentProject.id : null,
-      setValue: (id) => setCurrentProject(projects.find($ => $.id === id)),
+      options: projectsOptions,
+      value: projectId,
+      setValue: setProjectId,
     },
     transactions,
     reload,
+    loadMore,
   };
 };
 

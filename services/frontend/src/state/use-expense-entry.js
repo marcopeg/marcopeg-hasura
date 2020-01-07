@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import { gql } from 'apollo-boost';
+import { FETCH_EXPENSE_TRANSACTIONS } from './use-expense-projects';
 
 const LOAD_PROJECTS_LIST = gql`
   query loadProjectsList {
@@ -42,18 +43,16 @@ const SAVE_EXPENSE_REPORT = gql`
       }
     ) {
       returning {
-        amount
-        category_id
-        created_at
-        created_by
-        data
         id
-        is_confirmed
+        created_at
+        amount
         notes
-        project_id
-        updated_at
-        updated_by
-        member_id
+        reporter {
+          email
+        }
+        category {
+          name
+        }
       }
     }
   }
@@ -77,7 +76,32 @@ const useExpenseEntry = () => {
   const [ amount, setAmount ] = useState('');
   const [ date, setDate ] = useState(new Date());
   const [ notes, setNotes ] = useState('');
-  const [ saveReport ] = useMutation(SAVE_EXPENSE_REPORT);
+
+  const [ saveReport ] = useMutation(SAVE_EXPENSE_REPORT, {
+    update: (cache, res) => {
+      const gql = {
+        query: FETCH_EXPENSE_TRANSACTIONS,
+        variables: {
+          projectId: project,
+          limit: 2,
+          offset: 0,
+        },
+      };
+
+      // It is not a given that the cache was already populated
+      try {
+        cache.writeQuery({
+          ...gql,
+          data: {
+            transactions: [
+              ...res.data.insert_expense_transactions.returning,
+              ...cache.readQuery(gql).transactions,
+            ],
+          },
+        });
+      } catch (err) {};
+    },
+  });
 
   // auto select the project in case there is only one value
   useEffect(() => {
