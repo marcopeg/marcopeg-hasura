@@ -137,6 +137,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
           <IonLabel position="floating">Note:</IonLabel>
           <IonTextarea
             rows={4}
+            autocapitalize={true}
             placeholder="Enter any notes here..."
             value={notes.value}
             onIonChange={(e) => notes.setValue(e.target.value)}

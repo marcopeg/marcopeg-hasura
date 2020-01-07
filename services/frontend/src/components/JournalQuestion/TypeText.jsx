@@ -15,6 +15,7 @@ const TypeText = ({
   <IonItem>
     <IonLabel position="floating">{question}</IonLabel>
     <IonTextarea
+      autocapitalize={true}
       {...questionData}
       value={answer}
       onIonChange={(e) => updateAnswer(e.target.value, answerData)}

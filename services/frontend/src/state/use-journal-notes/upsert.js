@@ -78,6 +78,7 @@ const useJournalNotesUpsert = (noteId, options = DEFAULT_OPTIONS) => {
       text: {
         options: {
           readonly: false,
+          autocapitalize: true,
         },
         value: values.text,
         update: (text) => setValues({ ...values, text }),
