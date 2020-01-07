@@ -1,8 +1,13 @@
 import { gql } from 'apollo-boost';
 
 export const LOAD_JOURNAL_NOTES = gql`
-  query loadJournalNotes {
+  query loadJournalNotes (
+    $limit: Int!
+    $offset: Int!
+  ) {
     journal_notes (
+      limit: $limit
+      offset: $offset
       order_by: { created_at: desc }
     ) {
       id

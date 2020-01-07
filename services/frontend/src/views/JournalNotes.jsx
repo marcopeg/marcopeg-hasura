@@ -66,7 +66,7 @@ const NoteModal = ({ noteId, ...modalProps }) => {
 };
 
 const JournalNotes = () => {
-  const { entries, remove, reload } = useJournalNotesEntries();
+  const { entries, remove, reload, loadMore } = useJournalNotesEntries();
   const [ modal, setModal ] = useState({
     noteId: NEW_ITEM_ID,
     isOpen: false,
@@ -108,6 +108,7 @@ const JournalNotes = () => {
             </IonItemSliding>
           ))}
         </IonList>
+        <IonButton fill="clear" expand="block" onClick={loadMore}>Load More</IonButton>
       </IonContent>
       <IonFab vertical="bottom" horizontal="end" slot="fixed">
         <IonFabButton onClick={openModal(NEW_ITEM_ID)}>

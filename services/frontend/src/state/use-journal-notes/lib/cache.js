@@ -1,10 +1,12 @@
-import { LOAD_JOURNAL_NOTES } from './graphql';
-
-export const updateCacheAfterCreate = (cache, res) => {
+/**
+ *
+ * @param {query, variables} gql Used to identify the query that needs to be updated
+ */
+export const updateCacheAfterCreate = (gql) => (cache, res) => {
   try {
-    const { journal_notes } = cache.readQuery({ query: LOAD_JOURNAL_NOTES });
+    const { journal_notes } = cache.readQuery(gql);
     cache.writeQuery({
-      query: LOAD_JOURNAL_NOTES,
+      ...gql,
       data: {
         journal_notes: [
           ...res.data.insert_journal_notes.returning,
@@ -18,12 +20,16 @@ export const updateCacheAfterCreate = (cache, res) => {
   }
 };
 
-export const updateCacheAfterRemove = (cache, res) => {
+/**
+ *
+ * @param {query, variables} gql Used to identify the query that needs to be updated
+ */
+export const updateCacheAfterRemove = (gql) => (cache, res) => {
   try {
     const removedIds = res.data.delete_journal_notes.returning.map($ => $.id);
-    const { journal_notes } = cache.readQuery({ query: LOAD_JOURNAL_NOTES });
+    const { journal_notes } = cache.readQuery(gql);
     cache.writeQuery({
-      query: LOAD_JOURNAL_NOTES,
+      ...gql,
       data: {
         journal_notes: journal_notes.filter($ => !removedIds.includes($.id)),
       },

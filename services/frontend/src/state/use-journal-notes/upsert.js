@@ -1,15 +1,14 @@
-/* eslint-disable */
-
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
-import { LOAD_JOURNAL_NOTE, UPDATE_JOURNAL_NOTE, INSERT_JOURNAL_NOTE } from './lib/graphql';
+import { LOAD_JOURNAL_NOTE, UPDATE_JOURNAL_NOTE, INSERT_JOURNAL_NOTE, LOAD_JOURNAL_NOTES } from './lib/graphql';
 import { updateCacheAfterCreate } from './lib/cache';
+import { DEFAULT_OPTIONS } from './entries';
 
 export const NEW_ITEM_ID = '$new';
 const INITIAL_VALUES = { id: NEW_ITEM_ID, text: '' };
 const noop = () => {};
 
-const useJournalNotesUpsert = (noteId) => {
+const useJournalNotesUpsert = (noteId, options = DEFAULT_OPTIONS) => {
   const submitTimer = useRef(null);
   const [ values, setValues ] = useState(INITIAL_VALUES);
   const [ initialValues, setInitialValues ] = useState(INITIAL_VALUES);
@@ -21,9 +20,15 @@ const useJournalNotesUpsert = (noteId) => {
   } = useQuery(LOAD_JOURNAL_NOTE, { variables: { noteId }});
 
   const [ updateNote ] = useMutation(UPDATE_JOURNAL_NOTE);
-  const [ createNote ] = useMutation(INSERT_JOURNAL_NOTE, { update: updateCacheAfterCreate });
 
-  const submit = async () => {
+  const [ createNote ] = useMutation(INSERT_JOURNAL_NOTE, {
+    update: updateCacheAfterCreate({
+      query: LOAD_JOURNAL_NOTES,
+      variables: { limit: options.limit, offset: 0 },
+    }),
+  });
+
+  const submit = useCallback(async () => {
     try {
       // console.log('@submit', initialValues.id)
       const { id } = initialValues;
@@ -43,7 +48,7 @@ const useJournalNotesUpsert = (noteId) => {
     } catch (err) {
       console.error('@@submit', err.message)
     }
-  };
+  }, [ initialValues, values, createNote, updateNote ]);
 
   // Populate the initial values for the edit form
   useEffect(() => {
@@ -63,7 +68,7 @@ const useJournalNotesUpsert = (noteId) => {
   useEffect(() => {
     clearTimeout(submitTimer.current);
     submitTimer.current = setTimeout(submit, 500);
-  }, [values])
+  }, [ values, submit ])
 
   return {
     submit,
