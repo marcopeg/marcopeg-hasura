@@ -3,6 +3,12 @@
  * Preloads all the chunks found in the "assets-manifest.json"
  */
 
+
+
+/**
+ * Preload Static Assets
+ */
+
 const fs = require("fs");
 const builtHTMLContent = fs.readFileSync("./build/index.html").toString();
 const manifest = JSON.parse(fs.readFileSync("./build/asset-manifest.json").toString());
@@ -41,3 +47,13 @@ setTimeout(window.__preloadChunks__, 50);
 </script>`;
 
 fs.writeFileSync("./build/index.html", builtHTMLContent.replace('</body>', `${lazyPreload}</body>`));
+
+
+
+/**
+ * Add Version JSON
+ */
+const pkg = require('../package.json');
+const versionJS = `window.__APP_VERSION__ = { version: '${pkg.version}', build: ${Date.now()}};`;
+fs.writeFileSync('./build/version.js', versionJS);
+
