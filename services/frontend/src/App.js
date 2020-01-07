@@ -6,11 +6,13 @@ import LoadingCurtain from './containers/LoadingCurtain';
 import HomePage from './views/HomePage';
 import Dashboard from './views/Dashboard';
 import Journal from './views/Journal';
+import JournalNotes from './views/JournalNotes';
 import ExpenseHistory from './views/ExpenseHistory';
 
 const IonRoutes = () => (
   <IonReactRouter>
     <IonRouterOutlet id={'main'}>
+      <Route path="/journal/notes" exact component={JournalNotes} />
       <Route path="/journal" exact component={Journal} />
       <Route path="/dashboard" exact component={Dashboard} />
       <Route path="/expense" exact component={ExpenseHistory} />

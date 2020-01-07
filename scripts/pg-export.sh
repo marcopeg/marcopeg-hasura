@@ -17,4 +17,8 @@ docker run --rm postgres pg_dump \
     --no-owner \
     --no-privileges \
     --no-acl \
-    --dbname=${CONN_STR} > ${ABS_PATH}
+    -F p \
+    --inserts \
+    --dbname=${CONN_STR} \
+    > ${ABS_PATH}
+
