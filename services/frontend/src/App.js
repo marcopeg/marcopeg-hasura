@@ -8,6 +8,7 @@ import Dashboard from './views/Dashboard';
 import Journal from './views/Journal';
 import JournalNotes from './views/JournalNotes';
 import ExpenseHistory from './views/ExpenseHistory';
+import UpdateScreen from './containers/UpdateScreen';
 
 const IonRoutes = () => (
   <IonReactRouter>
@@ -27,6 +28,7 @@ const App = () => (
       <Route path="/(dashboard|journal|expense)" component={IonRoutes} />
       <Route path="/" exact component={HomePage} />
     </Switch>
+    <UpdateScreen />
     <LoadingCurtain />
   </>
 );
