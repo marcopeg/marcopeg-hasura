@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import createAuth0Client from '@auth0/auth0-spa-js';
 import history from '../history';
 
 const REACT_APP_HASURA_DEV_TOKEN = process.env.REACT_APP_HASURA_DEV_TOKEN;
+const LOCAL_STORAGE_KEY = 'auth.user';
 
 export const Auth0Context = React.createContext();
 export const useAuth = () => useContext(Auth0Context);
@@ -50,6 +51,7 @@ const AuthProviderDev = ({ children }) => {
   );
 };
 
+
 /**
  * AuthProvider -- PRODUCTION
  * Runs through the normal Auth0 flow
@@ -60,17 +62,29 @@ const AuthProviderProd = ({
   rootURI = window.location.pathname,
   ...initOptions
 }) => {
-  const [ isReady, setIsReady ] = useState(false);
-  const [ isLoading, setIsLoading ] = useState(true);
-  const [ isAuthenticated, setIsAuthenticated ] = useState(false);
+  // compute the localStorage cached user just once per page load.
+  // this is just to avoid the initial login
+  const cachedUser = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY));
+    } catch (err) {
+      return null;
+    }
+  }, []);
+
+  // the initial state depends on the user that's been cached in localStorage
+  const [ isReady, setIsReady ] = useState(cachedUser !== null);
+  const [ isLoading, setIsLoading ] = useState(cachedUser === null);
+  const [ isAuthenticated, setIsAuthenticated ] = useState(cachedUser !== null);
   const [ client, setClient ] = useState(null);
-  const [ user, setUser ] = useState(null);
+  const [ user, setUser ] = useState(cachedUser);
   const [ token, setToken ] = useState(null);
 
   // Init Auth0 Client
   useEffect(() => {
     const initAuth0 = async () => {
       try {
+        console.log('@auth::init')
         const client = await createAuth0Client(initOptions);
         const isAuthenticated = await client.isAuthenticated(false);
 
@@ -87,18 +101,28 @@ const AuthProviderProd = ({
           }
         }
 
+        setClient(client);
+
         // Try to retrieve login info
         if (isAuthenticated) {
           const [user, token] = await Promise.all([
             client.getUser(),
             client.getTokenSilently(),
           ]);
+
+          // Persist in memory
           setUser(user);
           setToken(token);
           setIsAuthenticated(true);
-        }
 
-        setClient(client);
+          // Persist in local storage
+          localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(user));
+        } else {
+          // Clean up local storage and in-memory auth cache
+          setToken(null);
+          setIsAuthenticated(false);
+          localStorage.removeItem(LOCAL_STORAGE_KEY);
+        }
       } catch (err) {
         console.log('!!!!!!!!!!!!')
         console.error(err);
@@ -117,6 +141,7 @@ const AuthProviderProd = ({
 
   const logout = () => {
     setIsLoading(true);
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
     client.logout({ returnTo: rootURL });
   }
 
