@@ -1,4 +1,43 @@
 --------------------------------------------------------------------
+-- Add settings tables
+--------------------------------------------------------------------
+
+CREATE TABLE app_settings (
+	"key" VARCHAR(25) PRIMARY KEY,
+	"value" jsonb DEFAULT '{}'
+);
+
+INSERT INTO app_settings ("key", "value")
+VALUES ('client.web.build', '1');
+
+CREATE TABLE users_settings (
+	"user_id" integer PRIMARY KEY REFERENCES users(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
+	"data" jsonb DEFAULT '{}',
+	"created_at" timestamp with time zone NOT NULL DEFAULT now(),
+	"updated_at" timestamp with time zone NOT NULL DEFAULT now()
+);
+
+-- populate user settings with existing users
+INSERT INTO users_settings SELECT u.id, '{}' as "data" FROM users AS u;
+
+-- function and trigger to automatically create a new user settings row
+CREATE OR REPLACE FUNCTION populate_users_settings ()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO users_settings (user_id) VALUES (NEW.id);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS populate_users_settings_trigger ON public.users;
+CREATE TRIGGER populate_users_settings_trigger
+AFTER INSERT
+ON users
+FOR EACH ROW
+EXECUTE PROCEDURE populate_users_settings();
+
+
+--------------------------------------------------------------------
 -- #14 Add logs in a random journal form
 --------------------------------------------------------------------
 

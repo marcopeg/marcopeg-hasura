@@ -1,24 +1,29 @@
+import { gql } from 'apollo-boost';
+import { useQuery } from '@apollo/react-hooks';
 import * as serviceWorker from '../serviceWorker';
 
-export const useAppVersion = () => {
-  const current = {
-    version: '0.0.0',
-    build: 0,
-  };
+export const LOAD_APP_BUILD = gql`
+  query loadAppBuild {
+    build: app_settings(where: {key: {_eq: "client.web.build"}}) {
+      value
+    }
+  }
+`;
 
-  const online = {
-    version: '0.0.0',
-    build: 0,
-  };
+export const useAppVersion = () => {
+  const { data } = useQuery(LOAD_APP_BUILD, { pollInterval: 5000 });
+
+  const latestBuild = data && data.build && data.build.length ? data.build[0].value : 0;
+  const currentBuild = 0;
 
   return {
     current: {
-      version: current.version,
+      version: currentBuild,
     },
     next: {
-      version: online.version,
+      version: latestBuild,
     },
-    shouldUpdate: online.build > current.build,
+    shouldUpdate: latestBuild > currentBuild,
     update: () => {
       serviceWorker.unregister();
       window.location.reload(true);

@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import { LOAD_JOURNAL_NOTES, REMOVE_JOURNAL_NOTES } from './lib/graphql';
 import { updateCacheAfterRemove } from './lib/cache';
 
-export const DEFAULT_OPTIONS = { limit: 20 };
+export const DEFAULT_OPTIONS = { limit: 2 };
 
 const useJournalNotesEntries = (options = DEFAULT_OPTIONS) => {
   const variables = { limit: options.limit, offset: 0 };
