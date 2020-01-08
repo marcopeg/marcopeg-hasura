@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IonPage,
   IonContent,
@@ -19,13 +19,17 @@ import {
   IonNote,
   IonRefresher,
   IonRefresherContent,
+  IonFab,
+  IonFabButton,
 } from '@ionic/react';
-import { arrowBack, trash } from 'ionicons/icons'
+import { arrowBack, trash, add } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
 import useExpenseProjects from '../state/use-expense/projects';
+import ExpenseEntryModal from '../containers/ExpenseEntryModal';
 
 const ExpenseHistory = () => {
   const { projects, transactions, reload, loadMore, remove } = useExpenseProjects();
+  const [ showExpenseModal, setShowExpenseModal ] = useState(false);
 
   return (
     <IonPage>
@@ -93,6 +97,15 @@ const ExpenseHistory = () => {
           Load More
         </IonButton>
       </IonContent>
+      <IonFab vertical="bottom" horizontal="end" slot="fixed">
+        <IonFabButton onClick={() => setShowExpenseModal(true)}>
+          <IonIcon icon={add} />
+        </IonFabButton>
+      </IonFab>
+      <ExpenseEntryModal
+        isOpen={showExpenseModal}
+        onDismiss={() => setShowExpenseModal(false)}
+      />
     </IonPage>
   );
 };
