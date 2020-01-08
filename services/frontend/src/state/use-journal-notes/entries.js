@@ -45,8 +45,8 @@ const useJournalNotesEntries = (options = DEFAULT_OPTIONS) => {
               ...next.journal_notes
             ]}
           : prev
-    })
-  }
+    });
+  };
 
   return {
     entries,

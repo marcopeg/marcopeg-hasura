@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   IonPage,
   IonContent,
@@ -10,22 +10,26 @@ import {
   IonIcon,
   IonList,
   IonItem,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
   IonLabel,
   IonSelect,
   IonSelectOption,
   IonNote,
   IonRefresher,
   IonRefresherContent,
+  IonFab,
+  IonFabButton,
 } from '@ionic/react';
-import { arrowBack } from 'ionicons/icons'
+import { arrowBack, trash, add } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
-import useExpenseProjects from '../state/use-expense-projects';
+import useExpenseProjects from '../state/use-expense/projects';
+import ExpenseEntryModal from '../containers/ExpenseEntryModal';
 
 const ExpenseHistory = () => {
-  const { projects, transactions, reload } = useExpenseProjects();
-
-  const reloadList = (evt) =>
-    reload().finally(() => evt.detail.complete());
+  const { projects, transactions, reload, loadMore, remove } = useExpenseProjects();
+  const [ showExpenseModal, setShowExpenseModal ] = useState(false);
 
   return (
     <IonPage>
@@ -40,7 +44,7 @@ const ExpenseHistory = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent>
-        <IonRefresher slot="fixed" onIonRefresh={reloadList}>
+        <IonRefresher slot="fixed" onIonRefresh={reload}>
           <IonRefresherContent
             pullingIcon="arrow-dropdown"
             pullingText="Pull to refresh"
@@ -64,21 +68,44 @@ const ExpenseHistory = () => {
         <hr />
         <IonList>
           {transactions.map((transaction) => (
-            <IonItem key={transaction.id}>
-              <IonLabel>
-                <p><small>{transaction.showCreatedAt}</small></p>
-                <h3>{transaction.showCategory}, by {transaction.showReporter}</h3>
-                {transaction.notes ? (
-                  <p>{transaction.notes}</p>
-                ) : null}
-              </IonLabel>
-              <IonNote>
-                {transaction.showAmount}
-              </IonNote>
-            </IonItem>
+            <IonItemSliding key={transaction.id}>
+              <IonItem>
+                <IonLabel>
+                  <p><small>{transaction.showCreatedAt}</small></p>
+                  <h3>{transaction.showCategory}, by {transaction.showReporter}</h3>
+                  {transaction.notes ? (
+                    <p>{transaction.notes}</p>
+                  ) : null}
+                </IonLabel>
+                <IonNote>
+                  {transaction.showAmount}
+                </IonNote>
+              </IonItem>
+              <IonItemOptions side="end">
+                <IonItemOption color="danger" onClick={() => remove(transaction.id)}>
+                  <IonIcon icon={trash} size="large" />
+                </IonItemOption>
+              </IonItemOptions>
+            </IonItemSliding>
           ))}
         </IonList>
+        <IonButton
+          fill="clear"
+          expand="full"
+          onClick={loadMore}
+        >
+          Load More
+        </IonButton>
       </IonContent>
+      <IonFab vertical="bottom" horizontal="end" slot="fixed">
+        <IonFabButton onClick={() => setShowExpenseModal(true)}>
+          <IonIcon icon={add} />
+        </IonFabButton>
+      </IonFab>
+      <ExpenseEntryModal
+        isOpen={showExpenseModal}
+        onDismiss={() => setShowExpenseModal(false)}
+      />
     </IonPage>
   );
 };

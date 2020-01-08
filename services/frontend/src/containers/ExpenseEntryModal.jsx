@@ -18,7 +18,7 @@ import {
   IonNote,
 } from '@ionic/react';
 import { close } from 'ionicons/icons'
-import useExpenseEntry from '../state/use-expense-entry';
+import useExpenseEntry from '../state/use-expense/entry';
 
 const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
   const {
@@ -137,6 +137,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
           <IonLabel position="floating">Note:</IonLabel>
           <IonTextarea
             rows={4}
+            autocapitalize={true}
             placeholder="Enter any notes here..."
             value={notes.value}
             onIonChange={(e) => notes.setValue(e.target.value)}
