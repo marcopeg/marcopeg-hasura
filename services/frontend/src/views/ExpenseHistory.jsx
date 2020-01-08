@@ -19,7 +19,7 @@ import {
 } from '@ionic/react';
 import { arrowBack } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
-import useExpenseProjects from '../state/use-expense-projects';
+import useExpenseProjects from '../state/use-expense/projects';
 
 const ExpenseHistory = () => {
   const { projects, transactions, reload, loadMore } = useExpenseProjects();

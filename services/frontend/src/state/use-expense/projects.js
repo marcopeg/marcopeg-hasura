@@ -1,45 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@apollo/react-hooks';
-import { gql } from 'apollo-boost';
 
-export const FETCH_EXPENSE_PROJECTS = gql`
-  query fetchProjects {
-    projects: expense_projects_list (
-      order_by: { order: asc }
-    ) {
-      id
-      name
-      data
-      notes
-    }
-  }
-`;
-
-export const FETCH_EXPENSE_TRANSACTIONS = gql`
-  query fetchTransactions (
-    $projectId: Int!
-    $limit: Int!
-    $offset: Int!
-  ) {
-    transactions: expense_transactions_list(
-      where: { project_id: {_eq: $projectId } },
-      order_by: { created_at: desc }
-      limit: $limit
-      offset: $offset
-    ) {
-      id
-      created_at
-      amount
-      notes
-      reporter {
-        email
-      }
-      category {
-        name
-      }
-    }
-  }
-`;
+import { FETCH_EXPENSE_PROJECTS, FETCH_EXPENSE_TRANSACTIONS } from './lib/graphql';
+import { DEFAULT_OPTIONS } from './lib/constants'
 
 const monthNames = [
   'Jan',
@@ -83,14 +46,14 @@ const mapTransactions = (items, project) => {
   });
 }
 
-const useExpenseProjects = () => {
+const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
   const [ projectId, setProjectId ] = useState(null);
 
   const projectsQuery = useQuery(FETCH_EXPENSE_PROJECTS);
 
   const transactionsQuery = useQuery(FETCH_EXPENSE_TRANSACTIONS, {
     fetchPolicy: 'cache-first',
-    variables: { projectId, limit: 2, offset: 0 },
+    variables: { projectId, limit: options.limit, offset: 0 },
   });
 
   const currentProject = useMemo(() => (

@@ -11,7 +11,6 @@ import {
   IonList,
   IonListHeader,
   IonItem,
-  IonItemDivider,
   IonLabel,
 } from '@ionic/react';
 import { basket, paper, download } from 'ionicons/icons'

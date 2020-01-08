@@ -1,62 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
-import { gql } from 'apollo-boost';
-import { FETCH_EXPENSE_TRANSACTIONS } from './use-expense-projects';
-
-const LOAD_PROJECTS_LIST = gql`
-  query loadProjectsList {
-    expense_projects_list {
-      id
-      name
-      data
-      categories (order_by: {order: asc}) {
-        id
-        name
-        notes
-      }
-      members (order_by: {email: asc}) {
-        member_id
-        email
-      }
-    }
-    users { id }
-  }
-`;
-
-const SAVE_EXPENSE_REPORT = gql`
-  mutation saveExpenseReport (
-    $amount: Int!
-    $project: Int!
-    $category: Int!
-    $reporter: Int!
-    $notes: String
-    $date: timestamptz
-  ) {
-    insert_expense_transactions(
-      objects: {
-        amount: $amount
-        category_id: $category
-        project_id: $project
-        member_id: $reporter
-        notes: $notes
-        created_at: $date
-      }
-    ) {
-      returning {
-        id
-        created_at
-        amount
-        notes
-        reporter {
-          email
-        }
-        category {
-          name
-        }
-      }
-    }
-  }
-`;
+import {
+  FETCH_EXPENSE_TRANSACTIONS,
+  LOAD_PROJECTS_LIST,
+  SAVE_EXPENSE_REPORT,
+} from './lib/graphql';
+import { DEFAULT_OPTIONS } from './lib/constants'
+import { updateCacheAfterCreate } from './lib/cache';
 
 const getDefaultProject = (projects) =>
   projects.length
@@ -68,7 +18,7 @@ const getDefaultCategoryID = (project) =>
     ? project.categories[0].id
     : null;
 
-const useExpenseEntry = () => {
+const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
   const projects = useQuery(LOAD_PROJECTS_LIST);
   const [ project, setProject ] = useState(null);
   const [ category, setCategory ] = useState(null);
@@ -78,29 +28,10 @@ const useExpenseEntry = () => {
   const [ notes, setNotes ] = useState('');
 
   const [ saveReport ] = useMutation(SAVE_EXPENSE_REPORT, {
-    update: (cache, res) => {
-      const gql = {
-        query: FETCH_EXPENSE_TRANSACTIONS,
-        variables: {
-          projectId: project,
-          limit: 2,
-          offset: 0,
-        },
-      };
-
-      // It is not a given that the cache was already populated
-      try {
-        cache.writeQuery({
-          ...gql,
-          data: {
-            transactions: [
-              ...res.data.insert_expense_transactions.returning,
-              ...cache.readQuery(gql).transactions,
-            ],
-          },
-        });
-      } catch (err) {};
-    },
+    update: updateCacheAfterCreate({
+      query: FETCH_EXPENSE_TRANSACTIONS,
+      variables: { projectId: project, limit: options.limit, offset: 0 },
+    }),
   });
 
   // auto select the project in case there is only one value

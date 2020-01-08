@@ -18,7 +18,7 @@ import {
   IonNote,
 } from '@ionic/react';
 import { close } from 'ionicons/icons'
-import useExpenseEntry from '../state/use-expense-entry';
+import useExpenseEntry from '../state/use-expense/entry';
 
 const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
   const {
