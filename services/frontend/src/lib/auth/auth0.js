@@ -84,7 +84,7 @@ const AuthProviderProd = ({
   useEffect(() => {
     const initAuth0 = async () => {
       try {
-        console.log('@auth::init')
+        // console.log('@auth::init')
         const client = await createAuth0Client(initOptions);
         const isAuthenticated = await client.isAuthenticated(false);
 

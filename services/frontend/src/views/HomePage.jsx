@@ -11,9 +11,9 @@ import { Redirect } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 
 const HomePage = () => {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
 
-  if (token) {
+  if (isAuthenticated) {
     return <Redirect to="/dashboard" />;
   }
 
