@@ -10,6 +10,9 @@ import {
   IonIcon,
   IonList,
   IonItem,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
   IonLabel,
   IonSelect,
   IonSelectOption,
@@ -17,12 +20,12 @@ import {
   IonRefresher,
   IonRefresherContent,
 } from '@ionic/react';
-import { arrowBack } from 'ionicons/icons'
+import { arrowBack, trash } from 'ionicons/icons'
 import { withAuth } from '../lib/auth';
 import useExpenseProjects from '../state/use-expense/projects';
 
 const ExpenseHistory = () => {
-  const { projects, transactions, reload, loadMore } = useExpenseProjects();
+  const { projects, transactions, reload, loadMore, remove } = useExpenseProjects();
 
   return (
     <IonPage>
@@ -61,18 +64,25 @@ const ExpenseHistory = () => {
         <hr />
         <IonList>
           {transactions.map((transaction) => (
-            <IonItem key={transaction.id}>
-              <IonLabel>
-                <p><small>{transaction.showCreatedAt}</small></p>
-                <h3>{transaction.showCategory}, by {transaction.showReporter}</h3>
-                {transaction.notes ? (
-                  <p>{transaction.notes}</p>
-                ) : null}
-              </IonLabel>
-              <IonNote>
-                {transaction.showAmount}
-              </IonNote>
-            </IonItem>
+            <IonItemSliding key={transaction.id}>
+              <IonItem>
+                <IonLabel>
+                  <p><small>{transaction.showCreatedAt}</small></p>
+                  <h3>{transaction.showCategory}, by {transaction.showReporter}</h3>
+                  {transaction.notes ? (
+                    <p>{transaction.notes}</p>
+                  ) : null}
+                </IonLabel>
+                <IonNote>
+                  {transaction.showAmount}
+                </IonNote>
+              </IonItem>
+              <IonItemOptions side="end">
+                <IonItemOption color="danger" onClick={() => remove(transaction.id)}>
+                  <IonIcon icon={trash} size="large" />
+                </IonItemOption>
+              </IonItemOptions>
+            </IonItemSliding>
           ))}
         </IonList>
         <IonButton

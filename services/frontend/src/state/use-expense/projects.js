@@ -1,8 +1,9 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useQuery } from '@apollo/react-hooks';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 
-import { FETCH_EXPENSE_PROJECTS, FETCH_EXPENSE_TRANSACTIONS } from './lib/graphql';
-import { DEFAULT_OPTIONS } from './lib/constants'
+import { FETCH_EXPENSE_PROJECTS, FETCH_EXPENSE_TRANSACTIONS, REMOVE_EXPENSE_TRANSACTIONS } from './lib/graphql';
+import { DEFAULT_OPTIONS } from './lib/constants';
+import { updateCacheAfterRemove } from './lib/cache';
 
 const monthNames = [
   'Jan',
@@ -56,6 +57,13 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
     variables: { projectId, limit: options.limit, offset: 0 },
   });
 
+  const [removeTransactions] = useMutation(REMOVE_EXPENSE_TRANSACTIONS, {
+    update: updateCacheAfterRemove({
+      query: FETCH_EXPENSE_TRANSACTIONS,
+      variables: { projectId, limit: options.limit, offset: 0 },
+    }),
+  });
+
   const currentProject = useMemo(() => (
     projectId
       ? projectsQuery.data.projects.find($ => $.id === projectId)
@@ -98,6 +106,11 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
           : prev
     });
 
+  const remove = (id) => {
+    const ids = Array.isArray(id) ? id : [id];
+    return removeTransactions({ variables: { ids }});
+  }
+
   return {
     projects: {
       options: projectsOptions,
@@ -107,6 +120,7 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
     transactions,
     reload,
     loadMore,
+    remove,
   };
 };
 

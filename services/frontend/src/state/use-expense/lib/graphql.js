@@ -91,3 +91,17 @@ export const SAVE_EXPENSE_REPORT = gql`
     }
   }
 `;
+
+export const REMOVE_EXPENSE_TRANSACTIONS = gql`
+  mutation removeExpenseTransactions (
+    $ids: [Int!]
+  ) {
+    delete_expense_transactions (
+      where: { id: { _in: $ids }}
+    ) {
+      returning {
+        id
+      }
+    }
+  }
+`;
