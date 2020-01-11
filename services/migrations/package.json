@@ -1,0 +1,43 @@
+{
+  "name": "migrations",
+  "version": "0.0.0",
+  "description": "REST Migrations for Hasura",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "cross-env NODE_ENV=development ./node_modules/.bin/nodemon src/index.js",
+    "start:test": "cross-env NODE_ENV=test ./node_modules/.bin/nodemon src/index.js",
+    "start:docker": "npm i && npm start",
+    "start:prod": "cross-env NODE_ENV=production node src/index.js",
+    "lint": "./node_modules/.bin/eslint ./src",
+    "jest": "./node_modules/.bin/jest",
+    "test": "npm run jest --runInBand",
+    "tdd:e2e": "./node_modules/.bin/jest --projects test/e2e --runInBand --watchAll",
+    "tdd:unit": "./node_modules/.bin/jest --projects test/unit --watchAll",
+    "reset": "rm -rf node_modules && npm i"
+  },
+  "repository": {
+    "type": "git",
+    "url": "tbd"
+  },
+  "jest": {
+    "globalSetup": "./jest.setup.js"
+  },
+  "author": "marco.pegoraro@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "cross-env": "^6.0.3",
+    "eslint": "^6.7.2",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.19.1",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.17.0",
+    "jest": "^24.9.0",
+    "nodemon": "^2.0.2"
+  },
+  "dependencies": {
+    "@forrestjs/hooks": "^3.9.0",
+    "@forrestjs/service-env": "^3.9.0",
+    "axios": "^0.19.0",
+    "envalid": "^6.0.0"
+  }
+}
