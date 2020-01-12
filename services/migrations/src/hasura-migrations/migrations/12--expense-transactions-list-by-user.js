@@ -100,7 +100,7 @@ const up = async (hasura) => {
 };
 
 module.exports = {
-  stable: false,
+  stable: true,
   up,
   down,
 };
