@@ -14,14 +14,15 @@ export const FETCH_EXPENSE_PROJECTS = gql`
 export const FETCH_EXPENSE_TRANSACTIONS = gql`
   query fetchTransactions (
     $projectId: Int!
-    $limit: Int!
-    $offset: Int!
+    $pageSize: smallint!
+    $lastDate: timestamptz!
   ) {
-    transactions: expense_transactions_list(
-      where: { project_id: {_eq: $projectId } },
-      order_by: { created_at: desc }
-      limit: $limit
-      offset: $offset
+    transactions: expense_transactions_list_by_user (
+      args: {
+        project_id: $projectId
+        page_size: $pageSize
+        last_date: $lastDate
+      }
     ) {
       id
       created_at

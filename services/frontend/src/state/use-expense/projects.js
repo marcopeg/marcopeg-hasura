@@ -1,9 +1,9 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 
 import { FETCH_EXPENSE_PROJECTS, FETCH_EXPENSE_TRANSACTIONS, REMOVE_EXPENSE_TRANSACTIONS } from './lib/graphql';
-import { DEFAULT_OPTIONS } from './lib/constants';
-import { updateCacheAfterRemove } from './lib/cache';
+import { DEFAULT_OPTIONS } from './lib/constants';
+import { updateCacheAfterRemove } from './lib/cache';
 
 const monthNames = [
   'Jan',
@@ -48,19 +48,19 @@ const mapTransactions = (items, project) => {
 }
 
 const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
-  const [ projectId, setProjectId ] = useState(null);
+  const [projectId, setProjectId] = useState(null);
 
   const projectsQuery = useQuery(FETCH_EXPENSE_PROJECTS);
 
   const transactionsQuery = useQuery(FETCH_EXPENSE_TRANSACTIONS, {
     fetchPolicy: 'cache-first',
-    variables: { projectId, limit: options.limit, offset: 0 },
+    variables: { projectId, pageSize: options.limit, lastDate: '3000-01-01' },
   });
 
   const [removeTransactions] = useMutation(REMOVE_EXPENSE_TRANSACTIONS, {
     update: updateCacheAfterRemove({
       query: FETCH_EXPENSE_TRANSACTIONS,
-      variables: { projectId, limit: options.limit, offset: 0 },
+      variables: { projectId, pageSize: options.limit, lastDate: '3000-01-01' },
     }),
   });
 
@@ -68,7 +68,7 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
     projectId
       ? projectsQuery.data.projects.find($ => $.id === projectId)
       : null
-  ), [ projectId, projectsQuery.data ]);
+  ), [projectId, projectsQuery.data]);
 
   const projectsOptions = useMemo(() => {
     if (!projectsQuery.data) return [];
@@ -80,35 +80,40 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
     if (!transactionsQuery.data) return [];
     if (!transactionsQuery.data.transactions) return [];
     return mapTransactions(transactionsQuery.data.transactions, currentProject);
-  }, [ transactionsQuery.data, currentProject ]);
+  }, [transactionsQuery.data, currentProject]);
 
   // Auto select project
   useEffect(() => {
     if (!projectId && projectsOptions.length) {
       setProjectId(projectsOptions[0].value);
     }
-  }, [ projectId, projectsOptions ]);
+  }, [projectId, projectsOptions]);
 
   const reload = async (e) => {
     await projectsQuery.refetch();
+    await transactionsQuery.refetch();
     e.detail && e.detail.complete && e.detail.complete();
   };
 
-  const loadMore = () =>
+  const loadMore = () => {
+    if (!transactions.length) return;
     transactionsQuery.fetchMore({
-      variables: { offset: transactions.length },
-      updateQuery: (prev, { fetchMoreResult: next }) =>
+      variables: { lastDate: transactions[transactions.length - 1].created_at },
+      updateQuery: (prev, { fetchMoreResult: next }) =>
         next
-          ? { transactions: [
+          ? {
+            transactions: [
               ...prev.transactions,
               ...next.transactions
-            ]}
+            ]
+          }
           : prev
     });
+  }
 
   const remove = (id) => {
     const ids = Array.isArray(id) ? id : [id];
-    return removeTransactions({ variables: { ids }});
+    return removeTransactions({ variables: { ids } });
   }
 
   return {

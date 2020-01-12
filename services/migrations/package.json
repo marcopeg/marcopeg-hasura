@@ -38,6 +38,6 @@
     "@forrestjs/hooks": "^3.9.0",
     "@forrestjs/service-env": "^3.9.0",
     "envalid": "^6.0.0",
-    "hasura-sdk": "0.0.4"
+    "hasura-sdk": "0.1.3"
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 import {
   FETCH_EXPENSE_TRANSACTIONS,
@@ -20,44 +20,44 @@ const getDefaultCategoryID = (project) =>
 
 const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
   const projects = useQuery(LOAD_PROJECTS_LIST);
-  const [ project, setProject ] = useState(null);
-  const [ category, setCategory ] = useState(null);
-  const [ reporter, setReporter ] = useState(null);
-  const [ amount, setAmount ] = useState('');
-  const [ date, setDate ] = useState(new Date());
-  const [ notes, setNotes ] = useState('');
+  const [project, setProject] = useState(null);
+  const [category, setCategory] = useState(null);
+  const [reporter, setReporter] = useState(null);
+  const [amount, setAmount] = useState('');
+  const [date, setDate] = useState(new Date());
+  const [notes, setNotes] = useState('');
 
-  const [ saveReport ] = useMutation(SAVE_EXPENSE_REPORT, {
+  const [saveReport] = useMutation(SAVE_EXPENSE_REPORT, {
     update: updateCacheAfterCreate({
       query: FETCH_EXPENSE_TRANSACTIONS,
-      variables: { projectId: project, limit: options.limit, offset: 0 },
+      variables: { projectId: project, pageSize: options.limit, lastDate: '3000-01-01' },
     }),
   });
 
   // auto select the project in case there is only one value
   useEffect(() => {
-    if (project !== null || !projects.data || projects.error) return;
+    if (project !== null || !projects.data || projects.error) return;
 
     // console.log('@auto select project on load');
     const defaultProject = getDefaultProject(projects.data.expense_projects_list);
     if (defaultProject) {
       setProject(defaultProject.id);
     }
-  }, [ project, projects.data, projects.error ]);
+  }, [project, projects.data, projects.error]);
 
   // auto select category on project change
   useEffect(() => {
-    if (project === null || !projects.data || projects.error) return;
+    if (project === null || !projects.data || projects.error) return;
     // console.log('@auto select category on project change', project);
     const currentProject = projects.data.expense_projects_list.find($ => $.id === project);
     if (currentProject) {
       setCategory(getDefaultCategoryID(currentProject));
     }
-  }, [ project, projects.data, projects.error ]);
+  }, [project, projects.data, projects.error]);
 
   // auto select reporter on project change
   useEffect(() => {
-    if (project === null || !projects.data || projects.error) return;
+    if (project === null || !projects.data || projects.error) return;
     // console.log('@auto select reporter on project change', project);
     const currentProject = projects.data.expense_projects_list.find($ => $.id === project);
     if (currentProject) {
@@ -73,7 +73,7 @@ const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
         setReporter(null);
       }
     }
-  }, [ project, projects.data, projects.error ]);
+  }, [project, projects.data, projects.error]);
 
   const currentUserId = (projects.data && projects.data.users && projects.data.users.length)
     ? projects.data.users[0].id
@@ -92,19 +92,19 @@ const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
 
   const categoriesOptions = project
     ? projects.data.expense_projects_list
-        .find($ => $.id === project)
-        .categories.map((category) => ({
-          value: category.id,
-          label: category.name,
-        }))
+      .find($ => $.id === project)
+      .categories.map((category) => ({
+        value: category.id,
+        label: category.name,
+      }))
     : [];
   const reportersOptions = project
     ? projects.data.expense_projects_list
-        .find($ => $.id === project)
-        .members.map((reporter) => ({
-          value: reporter.member_id,
-          label: reporter.member_id === currentUserId ? 'me' : reporter.email,
-        }))
+      .find($ => $.id === project)
+      .members.map((reporter) => ({
+        value: reporter.member_id,
+        label: reporter.member_id === currentUserId ? 'me' : reporter.email,
+      }))
     : [];
 
   const submit = async () => {
@@ -144,10 +144,10 @@ const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
       value: project,
       setValue: setProject,
       currency: currentProject
-        ? (currentProject.data || {}).currency || null
+        ? (currentProject.data || {}).currency || null
         : null,
       placeholder: currentProject
-        ? (currentProject.data || {}).placeholder || null
+        ? (currentProject.data || {}).placeholder || null
         : null,
     },
     category: {

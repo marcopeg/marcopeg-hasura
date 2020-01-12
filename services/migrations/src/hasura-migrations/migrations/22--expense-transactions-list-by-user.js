@@ -13,7 +13,7 @@ const down = async (hasura) => {
   });
 
   await hasura.query(`
-    DROP FUNCTION IF EXISTS expense_transactions_list_by_user(JSON, TEXT);
+    DROP FUNCTION IF EXISTS expense_transactions_list_by_user;
     DROP TABLE IF EXISTS expense_transactions_by_user CASCADE;
   `, null, { throw: false, log: 'dismantle' });
 };
@@ -35,31 +35,40 @@ const up = async (hasura) => {
       user_id integer NOT NULL REFERENCES users(id) ON DELETE RESTRICT ON UPDATE RESTRICT
     );
 
-    CREATE OR REPLACE FUNCTION expense_transactions_list_by_user(
+    CREATE OR REPLACE FUNCTION expense_transactions_list_by_user (
       hasura_session JSON,
-      dummy TEXT
+      project_id INTEGER,
+      last_date TIMESTAMP WITH TIME ZONE = NOW(),
+      page_size SMALLINT = 20
     )
     RETURNS SETOF expense_transactions_by_user AS $$
+    DECLARE
+      VAR_projectId INTEGER := project_id;
     BEGIN
       RETURN QUERY
       SELECT
-        id,
-        project_id,
-        category_id,
-        member_id,
-        amount,
-        notes,
-        data,
-        is_confirmed,
-        created_at,
+        t1.id,
+        t1.project_id,
+        t1.category_id,
+        t1.member_id,
+        t1.amount,
+        t1.notes,
+        t1.data,
+        t1.is_confirmed,
+        t1.created_at,
         (hasura_session->>'x-hasura-user-id')::INTEGER AS user_id
-      FROM expense_transactions
-      WHERE project_id IN (SELECT project_id FROM expense_projects_users WHERE member_id = (hasura_session->>'x-hasura-user-id')::INTEGER)
-      ORDER BY created_at DESC;
+      FROM expense_transactions AS t1
+      WHERE t1.project_id IN (
+        SELECT t1.project_id FROM expense_projects_users AS t1
+        WHERE t1.project_id = VAR_projectId
+          AND member_id = (hasura_session->>'x-hasura-user-id')::INTEGER
+      )
+        AND created_at < last_date
+      ORDER BY created_at DESC
+      LIMIT page_size ;
     END
     $$ LANGUAGE plpgsql STABLE;
-
-  `);
+  `, null, { throw: false, log: 'build' });
 
   await hasura.trackTable({
     schema: 'public',
@@ -80,6 +89,33 @@ const up = async (hasura) => {
   await hasura.trackFunctionWithSession({
     schema: 'public',
     name: 'expense_transactions_list_by_user',
+  });
+
+  await hasura.call({
+    type: 'create_object_relationship',
+    args: {
+      table: 'expense_transactions_by_user',
+      name: 'category',
+      using: {
+        foreign_key_constraint_on: 'category_id',
+      },
+    },
+  });
+
+  await hasura.call({
+    type: 'create_object_relationship',
+    args: {
+      table: 'expense_transactions_by_user',
+      name: 'reporter',
+      using: {
+        foreign_key_constraint_on: 'member_id',
+      },
+    },
+  });
+
+  await hasura.query({
+    sql: `DROP VIEW IF EXISTS expense_transactions_list CASCADE`,
+    option: { throw: false, log: 'cleanup' },
   });
 };
 
