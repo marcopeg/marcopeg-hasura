@@ -1,0 +1,38 @@
+{
+  "env": {
+    "es6": true,
+    "node": true,
+    "jest": true
+  },
+  "extends": "airbnb",
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    // disable underscore dangle
+    "no-underscore-dangle": "off",
+    // only allow warn/info/error console events
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "info", "error"]
+      }
+    ],
+    // disallow unary operations, except in for loops
+    "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
+    // prefer single quotes, allow template literals (backticks)
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
+    // default export for single exported var not required
+    "import/prefer-default-export": "off",
+    // disallow single line if, return and try/catch statements
+    // 1tbs => one true brace
+    "brace-style": ["error", "1tbs", { "allowSingleLine": false }],
+    // disable dangling comma rule
+    "comma-dangle": "off"
+  }
+}
