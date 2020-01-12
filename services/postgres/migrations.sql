@@ -1,4 +1,63 @@
 --------------------------------------------------------------------
+-- 20200109
+-- Use triggers and denormalized data after write
+--------------------------------------------------------------------
+
+
+-- add the cached list of a project's members into the projects' table
+-- ALTER TABLE "public"."expense_projects" ADD COLUMN "members" jsonb DEFAULT '[]';
+-- ALTER TABLE "public"."expense_projects" ADD COLUMN "members_info" jsonb DEFAULT '[]';
+-- ALTER TABLE "public"."expense_projects" ADD COLUMN "categories" jsonb DEFAULT '[]';
+-- ALTER TABLE "public"."expense_projects" ADD COLUMN "categories_info" jsonb DEFAULT '[]';
+
+-- update all the projects initially
+-- UPDATE expense_projects AS t
+-- SET members = agg.members
+-- FROM (
+-- 	SELECT project_id, json_agg(member_id) AS members
+-- 	FROM expense_projects_users
+-- 	GROUP BY project_id
+-- ) AS agg
+-- WHERE t.id = agg.project_id;
+
+-- trigger to re-compute projects' members after an update on
+-- the relation table
+-- CREATE OR REPLACE FUNCTION update_projects_members ()
+-- RETURNS TRIGGER AS $$
+-- DECLARE
+--   rec RECORD;
+-- BEGIN
+--   CASE TG_OP
+--     WHEN 'INSERT' THEN
+--       rec := NEW;
+--     WHEN 'UPDATE' THEN
+--       rec := NEW;
+--     WHEN 'DELETE' THEN
+--       rec := OLD;
+--     ELSE
+--       RAISE EXCEPTION 'Unknown TG_OP: "%". Should not occur!', TG_OP;
+--   END CASE;
+
+--   UPDATE expense_projects SET members = (
+-- 	SELECT json_agg(member_id) AS members
+-- 	FROM expense_projects_users
+-- 	WHERE project_id = rec.project_id
+--   ) WHERE id = rec.project_id;
+
+--   RETURN rec;
+-- END;
+-- $$ LANGUAGE plpgsql;
+
+-- DROP TRIGGER IF EXISTS update_projects_members_trigger ON public.expense_projects_users;
+-- CREATE TRIGGER update_projects_members_trigger
+-- AFTER INSERT OR UPDATE OR DELETE
+-- ON public.expense_projects_users
+-- FOR EACH ROW
+-- EXECUTE PROCEDURE update_projects_members();
+
+
+
+--------------------------------------------------------------------
 -- Add settings tables
 --------------------------------------------------------------------
 

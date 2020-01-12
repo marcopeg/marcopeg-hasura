@@ -9,7 +9,7 @@ const down = async (hasura) => {
   await hasura.untrackTable({
     schema: 'public',
     name: 'expense_transactions_by_user',
-    ascade: true,
+    cascade: true,
   });
 
   await hasura.query(`
@@ -19,8 +19,6 @@ const down = async (hasura) => {
 };
 
 const up = async (hasura) => {
-  await down(hasura);
-
   await hasura.query(`
     CREATE TABLE expense_transactions_by_user (
       id INTEGER PRIMARY KEY,
@@ -28,8 +26,8 @@ const up = async (hasura) => {
       amount integer NOT NULL CHECK (amount <> 0),
       notes text,
       data jsonb,
-      reporter jsonb,
-      category jsonb
+      reporter json,
+      category json
     );
 
     DROP FUNCTION IF EXISTS expense_transactions_list_by_user;
@@ -62,8 +60,8 @@ const up = async (hasura) => {
         t1.amount,
         t1.notes,
         t1.data,
-        jsonb_build_object('email', t2.email) AS reporter,
-        jsonb_build_object('name', t3.name) AS category
+        json_build_object('email', t2.email) AS reporter,
+        json_build_object('name', t3.name) AS category
       FROM granted_expenses AS t1
       JOIN users AS t2 ON t2.id = t1.member_id
       JOIN expense_categories AS t3 ON t3.id = t1.category_id

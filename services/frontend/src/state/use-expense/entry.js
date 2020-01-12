@@ -39,7 +39,7 @@ const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
     if (project !== null || !projects.data || projects.error) return;
 
     // console.log('@auto select project on load');
-    const defaultProject = getDefaultProject(projects.data.expense_projects_list);
+    const defaultProject = getDefaultProject(projects.data.expense_projects_list_by_user);
     if (defaultProject) {
       setProject(defaultProject.id);
     }
@@ -49,7 +49,7 @@ const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
   useEffect(() => {
     if (project === null || !projects.data || projects.error) return;
     // console.log('@auto select category on project change', project);
-    const currentProject = projects.data.expense_projects_list.find($ => $.id === project);
+    const currentProject = projects.data.expense_projects_list_by_user.find($ => $.id === project);
     if (currentProject) {
       setCategory(getDefaultCategoryID(currentProject));
     }
@@ -59,7 +59,7 @@ const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
   useEffect(() => {
     if (project === null || !projects.data || projects.error) return;
     // console.log('@auto select reporter on project change', project);
-    const currentProject = projects.data.expense_projects_list.find($ => $.id === project);
+    const currentProject = projects.data.expense_projects_list_by_user.find($ => $.id === project);
     if (currentProject) {
       try {
         const userId = projects.data.users[0].id;
@@ -80,26 +80,27 @@ const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
     : null;
 
   const currentProject = project
-    ? projects.data.expense_projects_list.find($ => $.id === project)
+    ? projects.data.expense_projects_list_by_user.find($ => $.id === project)
     : null;
 
-  const projectsOptions = (projects.data && projects.data.expense_projects_list)
-    ? projects.data.expense_projects_list.map((project) => ({
+  const projectsOptions = (projects.data && projects.data.expense_projects_list_by_user)
+    ? projects.data.expense_projects_list_by_user.map((project) => ({
       value: project.id,
       label: project.name,
     }))
     : [];
 
   const categoriesOptions = project
-    ? projects.data.expense_projects_list
+    ? projects.data.expense_projects_list_by_user
       .find($ => $.id === project)
       .categories.map((category) => ({
         value: category.id,
         label: category.name,
       }))
     : [];
+
   const reportersOptions = project
-    ? projects.data.expense_projects_list
+    ? projects.data.expense_projects_list_by_user
       .find($ => $.id === project)
       .members.map((reporter) => ({
         value: reporter.member_id,

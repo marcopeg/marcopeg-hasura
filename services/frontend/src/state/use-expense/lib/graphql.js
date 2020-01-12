@@ -2,9 +2,7 @@ import { gql } from 'apollo-boost';
 
 export const FETCH_EXPENSE_PROJECTS = gql`
   query fetchProjects {
-    projects: expense_projects_list (
-      order_by: { order: asc }
-    ) {
+    projects: expense_projects_list_by_user(args: {dummy: ""}) {
       id
       name
     }
@@ -36,19 +34,12 @@ export const FETCH_EXPENSE_TRANSACTIONS = gql`
 
 export const LOAD_PROJECTS_LIST = gql`
   query loadProjectsList {
-    expense_projects_list {
+    expense_projects_list_by_user (args: {dummy: ""}) {
       id
       name
       data
-      categories (order_by: {order: asc}) {
-        id
-        name
-        notes
-      }
-      members (order_by: {email: asc}) {
-        member_id
-        email
-      }
+      categories
+      members
     }
     users { id }
   }
