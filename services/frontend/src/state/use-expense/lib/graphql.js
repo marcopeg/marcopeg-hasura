@@ -28,12 +28,8 @@ export const FETCH_EXPENSE_TRANSACTIONS = gql`
       created_at
       amount
       notes
-      reporter {
-        email
-      }
-      category {
-        name
-      }
+      reporter
+      category
     }
   }
 `;

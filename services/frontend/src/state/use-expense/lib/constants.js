@@ -1,1 +1,1 @@
-export const DEFAULT_OPTIONS = { limit: 20 };
+export const DEFAULT_OPTIONS = { limit: 10 };
