@@ -1,11 +1,9 @@
+const path = require('path');
+const hasura = require('hasura-sdk');
 const { FEATURE_NAME } = require('./hooks');
-const { init: initApi } = require('./lib/api');
-const { loadFromDisk } = require('./lib/disk');
-const { query } = require('./lib/query');
-const { up } = require('./lib/migrations');
 
 const onInitService = ({ getConfig }) => {
-  initApi({
+  hasura.init({
     endpoint: `${getConfig('hasura.rootUrl')}/v1/query`,
     adminSecret: getConfig('hasura.adminSecret'),
   });
@@ -13,17 +11,17 @@ const onInitService = ({ getConfig }) => {
 
 const onStartService = async () => {
   // get latest executed migration
-  const lastMigration = await query({
+  const lastMigration = await hasura.query({
     sql: 'SELECT * FROM app_settings WHERE key = $key',
     binds: { key: 'hasura.migrations.current' },
   });
 
   // retrive migrations and filter out old ones
   const lastEtag = lastMigration.length ? Number(lastMigration[0].value) : -1;
-  const allMigrations = await loadFromDisk();
+  const allMigrations = await hasura.loadFromDisk(path.join(__dirname, 'migrations'));
 
   // default migrate up
-  await up(allMigrations, lastEtag);
+  await hasura.up(allMigrations, lastEtag);
 };
 
 module.exports = ({ registerAction }) => {

@@ -1,35 +1,27 @@
 /* eslint-disable no-console */
-const { query } = require('../lib/query');
-const {
-  trackTable,
-  untrackTable,
-  trackFunctionWithSession,
-  untrackFunction,
-  createSelectPermission,
-} = require('../lib/api');
 
-const down = async () => {
-  await untrackFunction({
+const down = async (hasura) => {
+  await hasura.untrackFunction({
     schema: 'public',
     name: 'expense_transactions_list_by_user',
   });
 
-  await untrackTable({
+  await hasura.untrackTable({
     schema: 'public',
     name: 'expense_transactions_by_user',
     ascade: true,
   });
 
-  await query(`
+  await hasura.query(`
     DROP FUNCTION IF EXISTS expense_transactions_list_by_user(JSON, TEXT);
     DROP TABLE IF EXISTS expense_transactions_by_user CASCADE;
   `, null, { throw: false, log: 'dismantle' });
 };
 
-const up = async () => {
-  await down();
+const up = async (hasura) => {
+  await down(hasura);
 
-  await query(`
+  await hasura.query(`
     CREATE TABLE expense_transactions_by_user (
       id INTEGER PRIMARY KEY,
       project_id integer REFERENCES expense_projects(id) ON DELETE RESTRICT ON UPDATE RESTRICT,
@@ -69,12 +61,12 @@ const up = async () => {
 
   `);
 
-  await trackTable({
+  await hasura.trackTable({
     schema: 'public',
     name: 'expense_transactions_by_user',
   });
 
-  await createSelectPermission({
+  await hasura.createSelectPermission({
     role: 'user',
     table: 'expense_transactions_by_user',
     permission: {
@@ -85,7 +77,7 @@ const up = async () => {
     },
   });
 
-  await trackFunctionWithSession({
+  await hasura.trackFunctionWithSession({
     schema: 'public',
     name: 'expense_transactions_list_by_user',
   });

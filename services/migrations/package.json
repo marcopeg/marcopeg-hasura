@@ -37,7 +37,7 @@
   "dependencies": {
     "@forrestjs/hooks": "^3.9.0",
     "@forrestjs/service-env": "^3.9.0",
-    "axios": "^0.19.0",
-    "envalid": "^6.0.0"
+    "envalid": "^6.0.0",
+    "hasura-sdk": "0.0.4"
   }
 }
