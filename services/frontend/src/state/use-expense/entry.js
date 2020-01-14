@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
+import { useSuccessFeedback } from '../use-success-feedback';
 import {
   FETCH_EXPENSE_TRANSACTIONS,
   LOAD_PROJECTS_LIST,
@@ -19,6 +20,7 @@ const getDefaultCategoryID = (project) =>
     : null;
 
 const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
+  const { show: showSuccessFeedback } = useSuccessFeedback()[1];
   const projects = useQuery(LOAD_PROJECTS_LIST);
   const [project, setProject] = useState(null);
   const [category, setCategory] = useState(null);
@@ -131,12 +133,16 @@ const useExpenseEntry = (options = DEFAULT_OPTIONS) => {
         notes,
         date,
       }
-    })
+    });
+
+    showSuccessFeedback();
 
     // reset form
-    setAmount('')
-    setNotes('')
-    setDate(new Date())
+    setTimeout(() => {
+      setAmount('')
+      setNotes('')
+      setDate(new Date())
+    }, 50);
   }
 
   return {
