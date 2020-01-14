@@ -47,7 +47,7 @@ export const LOAD_PROJECTS_LIST = gql`
 
 export const SAVE_EXPENSE_REPORT = gql`
   mutation saveExpenseReport (
-    $amount: Int!
+    $amount: numeric!
     $project: Int!
     $category: Int!
     $reporter: Int!
