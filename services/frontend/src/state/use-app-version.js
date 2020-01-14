@@ -14,7 +14,7 @@ export const useAppVersion = () => {
   const { data } = useQuery(LOAD_APP_BUILD, { pollInterval: 5000 });
 
   const latestBuild = data && data.build && data.build.length ? data.build[0].value : 0;
-  const currentBuild = 0;
+  const currentBuild = 1;
 
   return {
     current: {
