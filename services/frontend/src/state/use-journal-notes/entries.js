@@ -3,7 +3,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import { LOAD_JOURNAL_NOTES, REMOVE_JOURNAL_NOTES } from './lib/graphql';
 import { updateCacheAfterRemove } from './lib/cache';
 
-export const DEFAULT_OPTIONS = { limit: 2 };
+export const DEFAULT_OPTIONS = { limit: 20 };
 
 const useJournalNotesEntries = (options = DEFAULT_OPTIONS) => {
   const variables = { limit: options.limit, offset: 0 };
@@ -32,18 +32,20 @@ const useJournalNotesEntries = (options = DEFAULT_OPTIONS) => {
 
   const remove = (id) => {
     const ids = Array.isArray(id) ? id : [id];
-    return removeNotes({ variables: { ids }});
+    return removeNotes({ variables: { ids } });
   };
 
   const loadMore = () => {
     notesQuery.fetchMore({
-      variables: { offset: entries.length },
-      updateQuery: (prev, { fetchMoreResult: next }) =>
+      variables: { offset: entries.length },
+      updateQuery: (prev, { fetchMoreResult: next }) =>
         next
-          ? { journal_notes: [
+          ? {
+            journal_notes: [
               ...prev.journal_notes,
               ...next.journal_notes
-            ]}
+            ]
+          }
           : prev
     });
   };

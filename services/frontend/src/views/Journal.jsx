@@ -14,7 +14,7 @@ import {
   IonRefresher,
   IonRefresherContent,
 } from '@ionic/react';
-import { add, arrowBack } from 'ionicons/icons'
+import { add, arrowBack } from 'ionicons/icons';
 import { withAuth } from '../lib/auth';
 import JournalEntryModal from '../containers/JournalEntryModal';
 import useJournalHistory from '../state/use-journal-history';

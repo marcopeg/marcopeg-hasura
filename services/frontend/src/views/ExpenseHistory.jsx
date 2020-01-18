@@ -23,6 +23,7 @@ import {
   IonFabButton,
 } from '@ionic/react';
 import { arrowBack, trash, add } from 'ionicons/icons'
+import ReactMarkdown from "react-markdown";
 import { withAuth } from '../lib/auth';
 import useExpenseProjects from '../state/use-expense/projects';
 import ExpenseEntryModal from '../containers/ExpenseEntryModal';
@@ -74,7 +75,7 @@ const ExpenseHistory = () => {
                   <p><small>{transaction.showCreatedAt}</small></p>
                   <h3>{transaction.showCategory}, by {transaction.showReporter}</h3>
                   {transaction.notes ? (
-                    <p>{transaction.notes}</p>
+                    <ReactMarkdown className="markdown-text1" source={transaction.notes} />
                   ) : null}
                 </IonLabel>
                 <IonNote>

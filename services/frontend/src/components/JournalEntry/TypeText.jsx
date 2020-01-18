@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactMarkdown from "react-markdown";
 
 import {
   IonText,
@@ -13,10 +14,10 @@ const TypeText = ({ question, answer, entries }) => {
     <div>
       <IonText>
         {entries.length > 1 ? <b>{question}</b> : null}
-        <p>{answer}</p>
+        <ReactMarkdown className="markdown-text1" source={answer} />
       </IonText>
     </div>
-  )
+  );
 }
 
 export default TypeText;
