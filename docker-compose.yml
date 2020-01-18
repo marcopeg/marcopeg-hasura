@@ -1,10 +1,10 @@
-version: '3.6'
+version: "3.6"
 services:
   postgres:
     image: postgres:11.5
     restart: always
     ports:
-      - ${PG_PORT:-5432}:5432
+      - ${PG_PORT:-15432}:5432
     volumes:
       - ${HUMBLE_DATA:-./data}/postgres:/var/lib/postgresql/data:consistent
       - ${HUMBLE_DATA:-./data}/backup:/backup:consistent
@@ -13,7 +13,7 @@ services:
   hasura:
     image: hasura/graphql-engine:v1.0.0
     ports:
-      - ${HASURA_PORT:-8080}:8080
+      - ${HASURA_PORT:-18080}:8080
     depends_on:
       - "postgres"
     restart: always
