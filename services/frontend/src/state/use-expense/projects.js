@@ -4,31 +4,7 @@ import { useQuery, useMutation } from '@apollo/react-hooks';
 import { FETCH_EXPENSE_PROJECTS, FETCH_EXPENSE_TRANSACTIONS, REMOVE_EXPENSE_TRANSACTIONS } from './lib/graphql';
 import { DEFAULT_OPTIONS } from './lib/constants';
 import { updateCacheAfterRemove } from './lib/cache';
-
-const monthNames = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-];
-
-const day2str = (day) => {
-  if (day === 1) return `${day}st`;
-  if (day === 2) return `${day}nd`;
-  if (day === 3) return `${day}rd`;
-  return `${day}th`;
-};
-
-const showDate = (date) =>
-  `${monthNames[date.getMonth()]}  ${day2str(date.getDate())}, ${date.getFullYear()}`
+import { showDate } from '../../lib/date-time';
 
 const mapTransactions = (items, project) => {
   const currency = project.data && project.data.currency
