@@ -1,32 +1,28 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useQuery, useMutation } from '@apollo/react-hooks';
 
-import { FETCH_EXPENSE_PROJECTS, FETCH_EXPENSE_TRANSACTIONS, REMOVE_EXPENSE_TRANSACTIONS } from './lib/graphql';
+import { FETCH_EXPENSE_TRANSACTIONS, REMOVE_EXPENSE_TRANSACTIONS } from './lib/graphql';
 import { DEFAULT_OPTIONS } from './lib/constants';
 import { updateCacheAfterRemove } from './lib/cache';
 import { showDate } from '../../lib/date-time';
+import { useExpenseProjects } from './use-expense-projects';
 
 const mapTransactions = (items, project) => {
   const currency = project.data && project.data.currency
     ? project.data.currency
     : null;
 
-  return items.map((item) => {
-    // console.log(item)
-    return {
-      ...item,
-      showCreatedAt: showDate(new Date(item.created_at)),
-      showAmount: currency ? `${item.amount} ${currency}` : item.amount,
-      showReporter: item.reporter ? item.reporter.email.split('@').shift() : 'n/a',
-      showCategory: item.category.name,
-    };
-  });
+  return items.map((item) => ({
+    ...item,
+    showCreatedAt: showDate(new Date(item.created_at)),
+    showAmount: currency ? `${item.amount} ${currency}` : item.amount,
+    showReporter: item.reporter ? item.reporter.email.split('@').shift() : 'n/a',
+    showCategory: item.category.name,
+  }));
 }
 
-const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
-  const [projectId, setProjectId] = useState(null);
-
-  const projectsQuery = useQuery(FETCH_EXPENSE_PROJECTS);
+export const useExpenseHistory = (options = DEFAULT_OPTIONS) => {
+  const { projectId, setProjectId, currentProject, ...projects } = useExpenseProjects();
 
   const transactionsQuery = useQuery(FETCH_EXPENSE_TRANSACTIONS, {
     fetchPolicy: 'cache-first',
@@ -40,33 +36,14 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
     }),
   });
 
-  const currentProject = useMemo(() => (
-    projectId
-      ? projectsQuery.data.projects.find($ => $.id === projectId)
-      : null
-  ), [projectId, projectsQuery.data]);
-
-  const projectsOptions = useMemo(() => {
-    if (!projectsQuery.data) return [];
-    if (!projectsQuery.data.projects) return [];
-    return projectsQuery.data.projects.map($ => ({ value: $.id, label: $.name }));
-  }, [projectsQuery.data]);
-
   const transactions = useMemo(() => {
     if (!transactionsQuery.data) return [];
     if (!transactionsQuery.data.transactions) return [];
     return mapTransactions(transactionsQuery.data.transactions, currentProject);
   }, [transactionsQuery.data, currentProject]);
 
-  // Auto select project
-  useEffect(() => {
-    if (!projectId && projectsOptions.length) {
-      setProjectId(projectsOptions[0].value);
-    }
-  }, [projectId, projectsOptions]);
-
   const reload = async (e) => {
-    await projectsQuery.refetch();
+    await projects.refetch();
     await transactionsQuery.refetch();
     e.detail && e.detail.complete && e.detail.complete();
   };
@@ -85,7 +62,7 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
           }
           : prev
     });
-  }
+  };
 
   const remove = (id) => {
     const ids = Array.isArray(id) ? id : [id];
@@ -94,7 +71,7 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
 
   return {
     projects: {
-      options: projectsOptions,
+      options: projects.options,
       value: projectId,
       setValue: setProjectId,
     },
@@ -104,5 +81,3 @@ const useExpenseProjects = (options = DEFAULT_OPTIONS) => {
     remove,
   };
 };
-
-export default useExpenseProjects;

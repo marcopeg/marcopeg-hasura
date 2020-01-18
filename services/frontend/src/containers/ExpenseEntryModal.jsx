@@ -18,10 +18,11 @@ import {
   IonNote,
 } from '@ionic/react';
 import { close } from 'ionicons/icons'
-import useExpenseEntry from '../state/use-expense/entry';
+import { useExpenseEntry  } from "../state/use-expense/use-expense-entry";
 
 const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
   const {
+    title,
     project,
     category,
     reporter,
@@ -31,10 +32,6 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
     options,
     submit,
   } = useExpenseEntry();
-
-  const title = project.value
-    ? options.projects.find($ => $.value === project.value).label
-    : 'Expenses';
 
   return (
     <IonModal

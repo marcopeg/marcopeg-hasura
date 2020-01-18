@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   IonPage,
   IonContent,
@@ -25,12 +25,32 @@ import {
 import { arrowBack, trash, add } from 'ionicons/icons'
 import ReactMarkdown from "react-markdown";
 import { withAuth } from '../lib/auth';
-import useExpenseProjects from '../state/use-expense/projects';
+import { useExpenseHistory } from "../state/use-expense/use-expense-history";
 import ExpenseEntryModal from '../containers/ExpenseEntryModal';
 
-const ExpenseHistory = () => {
-  const { projects, transactions, reload, loadMore, remove } = useExpenseProjects();
-  const [ showExpenseModal, setShowExpenseModal ] = useState(false);
+const ExpenseHistory = props => {
+  const {
+    projects,
+    transactions,
+    reload,
+    loadMore,
+    remove
+  } = useExpenseHistory();
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+
+  // Workaround the select that doesn't seems to update
+  // when the selected value change...
+  const [projectId, setProjectId] = useState(null)
+  const changeProjectId = e => {
+    if (!projectId) return;
+    if (e.target.value === projectId) return;
+    if (projects.value === e.target.value) return;
+    projects.setValue(e.target.value);
+  };
+  useEffect(() => {
+    if (!projects.value || !projects.options.length) return () => {};
+    setTimeout(() => setProjectId(projects.value));
+  }, [projects.value, projects.options]);
 
   return (
     <IonPage>
@@ -38,7 +58,7 @@ const ExpenseHistory = () => {
         <IonToolbar>
           <IonTitle>Expenses</IonTitle>
           <IonButtons slot="start">
-            <IonButton routerLink={'/dashboard'} routerDirection={'root'}>
+            <IonButton routerLink={"/dashboard"} routerDirection={"root"}>
               <IonIcon icon={arrowBack} />
             </IonButton>
           </IonButtons>
@@ -50,51 +70,57 @@ const ExpenseHistory = () => {
             pullingIcon="arrow-dropdown"
             pullingText="Pull to refresh"
             refreshingSpinner="circles"
-            refreshingText="Refreshing...">
-          </IonRefresherContent>
+            refreshingText="Refreshing..."
+          ></IonRefresherContent>
         </IonRefresher>
         <IonItem>
           <IonLabel>Project:</IonLabel>
           <IonSelect
             interface="action-sheet"
             placeholder="Select a project:"
-            value={projects.value}
-            onIonChange={(e) => projects.setValue(e.target.value)}
+            value={projectId}
+            onIonChange={changeProjectId}
           >
             {projects.options.map(({ value, label }) => (
-              <IonSelectOption key={value} value={value}>{label}</IonSelectOption>
+              <IonSelectOption key={value} value={value}>
+                {label}
+              </IonSelectOption>
             ))}
           </IonSelect>
         </IonItem>
         <hr />
         <IonList>
-          {transactions.map((transaction) => (
+          {transactions.map(transaction => (
             <IonItemSliding key={transaction.id}>
               <IonItem>
                 <IonLabel>
-                  <p><small>{transaction.showCreatedAt}</small></p>
-                  <h3>{transaction.showCategory}, by {transaction.showReporter}</h3>
+                  <p>
+                    <small>{transaction.showCreatedAt}</small>
+                  </p>
+                  <h3>
+                    {transaction.showCategory}, by {transaction.showReporter}
+                  </h3>
                   {transaction.notes ? (
-                    <ReactMarkdown className="markdown-text1" source={transaction.notes} />
+                    <ReactMarkdown
+                      className="markdown-text1"
+                      source={transaction.notes}
+                    />
                   ) : null}
                 </IonLabel>
-                <IonNote>
-                  {transaction.showAmount}
-                </IonNote>
+                <IonNote>{transaction.showAmount}</IonNote>
               </IonItem>
               <IonItemOptions side="end">
-                <IonItemOption color="danger" onClick={() => remove(transaction.id)}>
+                <IonItemOption
+                  color="danger"
+                  onClick={() => remove(transaction.id)}
+                >
                   <IonIcon icon={trash} size="large" />
                 </IonItemOption>
               </IonItemOptions>
             </IonItemSliding>
           ))}
         </IonList>
-        <IonButton
-          fill="clear"
-          expand="full"
-          onClick={loadMore}
-        >
+        <IonButton fill="clear" expand="full" onClick={loadMore}>
           Load More
         </IonButton>
       </IonContent>
