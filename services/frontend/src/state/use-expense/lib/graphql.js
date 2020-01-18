@@ -5,6 +5,9 @@ export const FETCH_EXPENSE_PROJECTS = gql`
     projects: expense_projects_list_by_user(args: {dummy: ""}) {
       id
       name
+      data
+      categories
+      members
     }
   }
 `;
@@ -29,19 +32,6 @@ export const FETCH_EXPENSE_TRANSACTIONS = gql`
       reporter
       category
     }
-  }
-`;
-
-export const LOAD_PROJECTS_LIST = gql`
-  query loadProjectsList {
-    expense_projects_list_by_user (args: {dummy: ""}) {
-      id
-      name
-      data
-      categories
-      members
-    }
-    users { id }
   }
 `;
 
