@@ -34,10 +34,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
   } = useExpenseEntry();
 
   return (
-    <IonModal
-      {...modalProps}
-      onDidDismiss={onDismiss}
-    >
+    <IonModal {...modalProps} onDidDismiss={onDismiss}>
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="start">
@@ -47,15 +44,17 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
           </IonButtons>
           <IonTitle>{title}</IonTitle>
           <IonButtons slot="end">
-            <IonButton onClick={async () => {
-              try {
-                await submit();
-                onDismiss();
-              } catch (err) {
-                alert(err.message);
-                console.log(err)
-              }
-            }}>
+            <IonButton
+              onClick={async () => {
+                try {
+                  await submit();
+                  onDismiss();
+                } catch (err) {
+                  alert(err.message);
+                  console.log(err);
+                }
+              }}
+            >
               Save
             </IonButton>
           </IonButtons>
@@ -68,9 +67,9 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
             type="number"
             inputmode="decimal"
             placeholder={project.placeholder}
-            style={{ textAlign: 'right' }}
+            style={{ textAlign: "right" }}
             value={amount.value}
-            onIonChange={(e) => amount.setValue(e.target.value)}
+            onIonChange={e => amount.setValue(e.target.value)}
           />
           {project.currency ? (
             <IonNote slot="end">{project.currency}</IonNote>
@@ -80,43 +79,82 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
           <IonItem>
             <IonLabel>Project:</IonLabel>
             <IonSelect
-              interface="action-sheet"
+              interface="popover"
               placeholder="Select a project:"
               value={project.value}
-              onIonChange={(e) => project.setValue(e.target.value)}
+              onIonChange={e => project.setValue(e.target.value)}
             >
               {options.projects.map(({ value, label }) => (
-                <IonSelectOption key={value} value={value}>{label}</IonSelectOption>
+                <IonSelectOption key={value} value={value}>
+                  {label}
+                </IonSelectOption>
               ))}
             </IonSelect>
           </IonItem>
         ) : null}
         {options.categories.length > 1 ? (
-          <IonItem>
-            <IonLabel>Category:</IonLabel>
-            <IonSelect
-              interface="action-sheet"
-              placeholder="Select a category:"
-              value={category.value}
-              onIonChange={(e) => category.setValue(e.target.value)}
-            >
-              {options.categories.map(({ value, label }) => (
-                <IonSelectOption key={value} value={value}>{label}</IonSelectOption>
-              ))}
-            </IonSelect>
-          </IonItem>
+          false // Switch between list of button and select
+            ? (
+              <IonItem>
+                <div
+                  style={{
+                    width: "100%",
+                    marginTop: 8,
+                    display: "flex",
+                    justifyContent: "space-between"
+                  }}
+                >
+                  <IonLabel>Category:</IonLabel>
+                  <div style={{ flex: "1", marginLeft: "15%" }}>
+                    {options.categories.map(({ value, label }) => (
+                      <IonButton
+                        key={value}
+                        size="small"
+                        expand="block"
+                        color={value === category.value ? "dark" : "medium"}
+                        fill={value === category.value ? "clear" : "clear"}
+                        onClick={() => category.setValue(value)}
+                      >
+                        <div style={{ width: "100%", textAlign: "right" }}>
+                          {label}
+                        </div>
+                      </IonButton>
+                    ))}
+                  </div>
+                </div>
+              </IonItem>
+            )
+            : (
+              <IonItem>
+                <IonLabel>Category:</IonLabel>
+                <IonSelect
+                  interface="popover"
+                  placeholder="Select a category:"
+                  value={category.value}
+                  onIonChange={e => category.setValue(e.target.value)}
+                >
+                  {options.categories.map(({ value, label }) => (
+                    <IonSelectOption key={value} value={value}>
+                      {label}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              </IonItem>
+            )
         ) : null}
         {options.reporters.length > 1 ? (
           <IonItem>
             <IonLabel>Reported by:</IonLabel>
             <IonSelect
-              interface="action-sheet"
+              interface="popover"
               placeholder="Select a reporter:"
               value={reporter.value}
-              onIonChange={(e) => reporter.setValue(e.target.value)}
+              onIonChange={e => reporter.setValue(e.target.value)}
             >
               {options.reporters.map(({ value, label }) => (
-                <IonSelectOption key={value} value={value}>{label}</IonSelectOption>
+                <IonSelectOption key={value} value={value}>
+                  {label}
+                </IonSelectOption>
               ))}
             </IonSelect>
           </IonItem>
@@ -127,7 +165,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
             displayFormat="MMM DD, YYYY"
             placeholder="Today"
             value={date.value.toString()}
-            onIonChange={(e) => date.setValue(new Date(e.target.value))}
+            onIonChange={e => date.setValue(new Date(e.target.value))}
           />
         </IonItem>
         <IonItem>
@@ -137,7 +175,7 @@ const ExpensesEntryModal = ({ onDismiss, ...modalProps }) => {
             autocapitalize={true}
             placeholder="Enter any notes here..."
             value={notes.value}
-            onIonChange={(e) => notes.setValue(e.target.value)}
+            onIonChange={e => notes.setValue(e.target.value)}
           />
         </IonItem>
       </IonContent>
