@@ -1,0 +1,20 @@
+image: marcopeg/gitpod-workspace-hasura:1.1.0
+
+tasks:
+  - name: Migrations
+    before: cd ./services/migrations
+    init: yarn install
+    openIn: bottom
+    openMode: tab-after
+  - name: Frontend
+    before: cd ./services/frontend
+    init: yarn install
+    command: yarn start
+    openIn: bottom
+    openMode: tab-after
+
+ports:
+  - port: 3000
+    onOpen: ignore
+  - port: 8080
+    onOpen: ignore
