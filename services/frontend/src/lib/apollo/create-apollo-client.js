@@ -7,7 +7,10 @@ import { getMainDefinition } from 'apollo-utilities';
 
 // Uses build time variables to connect to the backend
 const httpBaseUrl = process.env.REACT_APP_HASURA_URL;
-const wsBaseUrl = process.env.REACT_APP_HASURA_WS;
+const wsBaseUrl = process.env.REACT_APP_HASURA_WS
+  ? process.env.REACT_APP_HASURA_WS
+  : httpBaseUrl.replace('https://', 'wss://').replace('http://', 'ws://')
+;
 
 export const createApolloClient = (token) => {
   // #2 in development mode "token" will contain "x-hasura-" headers

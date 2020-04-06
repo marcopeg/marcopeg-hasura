@@ -6,13 +6,13 @@ tasks:
     command: hasura_start
   - name: Migrations
     before: cd ./services/migrations
-    init: npm install
+    init: yarn
     openIn: bottom
     openMode: tab-after
   - name: Frontend
     before: cd ./services/frontend
-    init: npm install
-    command: yarn start
+    init: yarn
+    command: yarn start:gitpod
     openIn: bottom
     openMode: tab-after
 

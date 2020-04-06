@@ -26,13 +26,14 @@
     "react-lottie": "^1.2.3",
     "react-markdown": "^4.3.1",
     "react-router-dom": "^5.1.2",
-    "react-scripts": "3.3.0",
+    "react-scripts": "3.4.0",
     "subscriptions-transport-ws": "^0.9.16",
     "use-global-hook": "^0.1.12"
   },
   "scripts": {
     "start": "react-scripts start",
     "start:prod": "./node_modules/.bin/http-server-spa build index.html 3000",
+    "start:gitpod": "REACT_APP_HASURA_URL=$(gp url 8080) react-scripts start",
     "build": "react-scripts build && node ./scripts/post-build.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
