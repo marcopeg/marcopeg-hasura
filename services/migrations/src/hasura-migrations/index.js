@@ -11,10 +11,13 @@ const onInitService = ({ getConfig }) => {
 
 const onStartService = async () => {
   // get latest executed migration
-  const lastMigration = await hasura.query({
-    sql: 'SELECT * FROM app_settings WHERE key = $key',
-    binds: { key: 'hasura.migrations.current' },
-  });
+  let lastMigration = 0
+  try {
+    lastMigration = await hasura.query({
+      sql: 'SELECT * FROM app_settings WHERE key = $key',
+      binds: { key: 'hasura.migrations.current' },
+    });
+  } catch (err) {} // eslint-disable.line
 
   // retrive migrations and filter out old ones
   const lastEtag = lastMigration.length ? Number(lastMigration[0].value) : -1;

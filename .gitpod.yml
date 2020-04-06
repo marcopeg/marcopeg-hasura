@@ -1,0 +1,27 @@
+image:
+  file: .gitpod.Dockerfile
+
+tasks:
+  - name: Hasura
+    command: hasura_start
+  - name: Migrations
+    before: cd ./services/migrations
+    init: npm install
+    openIn: bottom
+    openMode: tab-after
+  - name: Frontend
+    before: cd ./services/frontend
+    init: npm install
+    command: yarn start
+    openIn: bottom
+    openMode: tab-after
+
+ports:
+  - port: 5432
+    onOpen: ignore
+  - port: 3000
+    onOpen: ignore
+  - port: 8080
+    onOpen: ignore
+  - port: 8008
+    onOpen: ignore
