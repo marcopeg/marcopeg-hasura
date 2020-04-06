@@ -3,8 +3,6 @@ const hasura = require('hasura-sdk');
 const { FEATURE_NAME } = require('./hooks');
 
 const onInitService = ({ getConfig }) => {
-  console.log('URL:', `${getConfig('hasura.rootUrl')}/v1/query`)
-  console.log('SECRET:', getConfig('hasura.adminSecret'))
   hasura.init({
     endpoint: `${getConfig('hasura.rootUrl')}/v1/query`,
     adminSecret: getConfig('hasura.adminSecret'),
