@@ -21,8 +21,8 @@ const settingsHandler = ({ setContext, setConfig }) => {
   const env = envalid.cleanEnv(process.env, {
     NODE_ENV: envalid.str(nodeEnvConfig),
     LOG_LEVEL: envalid.str(logLevelConfig),
-    HASURA_API_ENDPOINT: envalid.url(),
-    HASURA_GRAPHQL_ADMIN_SECRET: envalid.str(),
+    HASURA_API_ENDPOINT: envalid.url({ default: 'http://localhost:8080' }),
+    HASURA_GRAPHQL_ADMIN_SECRET: envalid.str({ default: '' }),
   });
 
   // Store the validated environment with the App's context
