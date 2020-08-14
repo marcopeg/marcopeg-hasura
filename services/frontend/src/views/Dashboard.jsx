@@ -32,6 +32,7 @@ const Dashboard = ({ auth }) => {
       </IonHeader>
       <IonContent>
         <IonList>
+          {/*
           <IonListHeader>Expenses</IonListHeader>
           <IonItem
             button
@@ -51,7 +52,7 @@ const Dashboard = ({ auth }) => {
             <IonIcon icon={basket} slot="start" />
           </IonItem>
           <hr />
-
+          */}
           <IonListHeader>Journaling</IonListHeader>
           <IonItem
             button
